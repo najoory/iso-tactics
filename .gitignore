@@ -1,0 +1,10 @@
+# Godot-specific ignores
+.godot/
+
+# Editor-specific ignores
+.idea/
+*.swp
+*.tmp
+
+# Custom config ignores (optional, but good practice if users put secrets there)
+# config/*.json

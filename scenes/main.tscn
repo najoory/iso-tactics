@@ -1,0 +1,205 @@
+[gd_scene format=3 uid="uid://cwjtoylpp65bq"]
+
+[ext_resource type="Script" uid="uid://svxrkktn1lei" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="TileSet" path="res://resources/tileset.tres" id="2_tileset"]
+[ext_resource type="Script" uid="uid://c12q442fajgw6" path="res://scripts/camera_controller.gd" id="3_camera"]
+
+[node name="Main" type="Node2D" unique_id=1332843576]
+y_sort_enabled = true
+script = ExtResource("1_main")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1676050822]
+y_sort_enabled = true
+tile_set = ExtResource("2_tileset")
+
+[node name="HighlightLayer" type="TileMapLayer" parent="." unique_id=1265214404]
+z_index = 1
+tile_set = ExtResource("2_tileset")
+
+[node name="OrderLines" type="Node2D" parent="." unique_id=1655115586]
+z_index = 2
+
+[node name="Units" type="Node2D" parent="." unique_id=830264908]
+y_sort_enabled = true
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1762060018]
+script = ExtResource("3_camera")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1947146250]
+
+[node name="UI" type="Control" parent="CanvasLayer" unique_id=348267087]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TurnLabel" type="Label" parent="CanvasLayer/UI" unique_id=966010257]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 20.0
+offset_right = 100.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
+text = "PLAYER TURN"
+horizontal_alignment = 1
+
+[node name="ActionButtons" type="HBoxContainer" parent="CanvasLayer/UI" unique_id=1374610748]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -60.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="ExecuteOrders" type="Button" parent="CanvasLayer/UI/ActionButtons" unique_id=131794840]
+layout_mode = 2
+text = "EXECUTE ORDERS"
+
+[node name="HoldPosition" type="Button" parent="CanvasLayer/UI/ActionButtons" unique_id=1873652886]
+layout_mode = 2
+toggle_mode = true
+text = "HOLD POSITION"
+
+[node name="HelpLabel" type="Label" parent="CanvasLayer/UI" unique_id=1742204212]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -80.0
+offset_right = 260.0
+offset_bottom = -20.0
+grow_vertical = 0
+text = "WASD: Pan | Wheel: Zoom
+Left Click: Select/Move/Melee
+Right Click: Set Attack Order
+Space: End Turn"
+
+[node name="Tooltip" type="Panel" parent="CanvasLayer/UI" unique_id=623825742]
+visible = false
+layout_mode = 0
+offset_right = 140.0
+offset_bottom = 80.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/UI/Tooltip" unique_id=788556470]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="CanvasLayer/UI/Tooltip/VBox" unique_id=1762852978]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Soldier"
+
+[node name="Stats" type="Label" parent="CanvasLayer/UI/Tooltip/VBox" unique_id=881156225]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "HP: 10/10
+AP: 5/5"
+
+[node name="CombatTip" type="Label" parent="CanvasLayer/UI" unique_id=98736870]
+visible = false
+layout_mode = 0
+offset_right = 120.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "-2 AP | -3 HP"
+
+[node name="GameOver" type="ColorRect" parent="CanvasLayer" unique_id=632145462]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.784314)
+
+[node name="Label" type="Label" parent="CanvasLayer/GameOver" unique_id=2078813409]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -120.0
+offset_right = 100.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "VICTORY"
+horizontal_alignment = 1
+
+[node name="Rewards" type="VBoxContainer" parent="CanvasLayer/GameOver" unique_id=483740538]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -40.0
+offset_right = 100.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="AddKnight" type="Button" parent="CanvasLayer/GameOver/Rewards" unique_id=1427151789]
+layout_mode = 2
+text = "ADD KNIGHT"
+
+[node name="AddArcher" type="Button" parent="CanvasLayer/GameOver/Rewards" unique_id=1823937259]
+layout_mode = 2
+text = "ADD ARCHER"
+
+[node name="AddBallista" type="Button" parent="CanvasLayer/GameOver/Rewards" unique_id=1072080008]
+layout_mode = 2
+text = "ADD BALLISTA"
+
+[node name="UpgradeUnit" type="Button" parent="CanvasLayer/GameOver/Rewards" unique_id=319983322]
+layout_mode = 2
+text = "UPGRADE UNIT"
+
+[node name="Restart" type="Button" parent="CanvasLayer/GameOver" unique_id=900616120]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = 30.0
+offset_right = 60.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "RESTART"

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/floating_label.gd" id="1_script"]
+
+[node name="FloatingLabel" type="Label"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 18
+text = "-3 HP"
+horizontal_alignment = 1
+script = ExtResource("1_script")

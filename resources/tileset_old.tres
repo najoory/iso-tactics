@@ -1,0 +1,20 @@
+[gd_resource type="TileSet" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/iso_tile.png" id="1_atlas"]
+[ext_resource type="Texture2D" path="res://assets/highlight_tile.png" id="2_highlight"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_atlas"]
+texture = ext_resource("1_atlas")
+texture_region_size = Vector2i(64, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_highlight"]
+texture = ext_resource("2_highlight")
+texture_region_size = Vector2i(64, 32)
+0:0/0 = 0
+
+[resource]
+tile_shape = 1
+tile_size = Vector2i(64, 32)
+sources/0 = SubResource("TileSetAtlasSource_atlas")
+sources/1 = SubResource("TileSetAtlasSource_highlight")

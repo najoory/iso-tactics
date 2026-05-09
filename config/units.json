@@ -1,0 +1,62 @@
+{
+  "Player": {
+	"Knight": {
+	  "max_hp": 12,
+	  "max_ap": 5,
+	  "attack_damage": 4,
+	  "attack_cost": 2,
+	  "attack_range": 1
+	},
+	"Archer": {
+	  "max_hp": 8,
+	  "max_ap": 5,
+	  "attack_damage": 3,
+	  "attack_cost": 2,
+	  "attack_range": 3
+	},
+	"Ballista": {
+	  "max_hp": 8,
+	  "max_ap": 3,
+	  "attack_damage": 5,
+	  "attack_cost": 3,
+	  "attack_range": 8
+	}
+  },
+  "Enemy": {
+	"Goblin": {
+	  "max_hp": 3,
+	  "max_ap": 6,
+	  "attack_damage": 1,
+	  "attack_cost": 2,
+	  "attack_range": 1
+	},
+	"Orc Brute": {
+	  "max_hp": 8,
+	  "max_ap": 4,
+	  "attack_damage": 3,
+	  "attack_cost": 3,
+	  "attack_range": 1
+	},
+	"Orc Archer": {
+	  "max_hp": 5,
+	  "max_ap": 5,
+	  "attack_damage": 2,
+	  "attack_cost": 2,
+	  "attack_range": 3
+	},
+	"Orc Ballista": {
+	  "max_hp": 10,
+	  "max_ap": 4,
+	  "attack_damage": 4,
+	  "attack_cost": 4,
+	  "attack_range": 5
+	},
+	"Orc Overlord": {
+	  "max_hp": 20,
+	  "max_ap": 6,
+	  "attack_damage": 5,
+	  "attack_cost": 3,
+	  "attack_range": 1
+	}
+  }
+}
