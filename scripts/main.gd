@@ -675,9 +675,18 @@ func _attack_unit(attacker: Unit, defender: Unit):
 	if attacker.attack_range > 1 and _get_hex_distance(attacker.grid_position, defender.grid_position) == 1:
 		damage = ceili(damage * 0.5)
 	
-	# Grant XP: damage equal to own max HP triggers level up eligibility
+	# Grant XP and check for immediate level-up
 	if attacker.team == "Player":
 		attacker.data.current_exp += min(damage, defender.current_hp)
+		if attacker.data.current_exp >= attacker.max_hp:
+			attacker.data.level += 1
+			attacker.data.max_hp += 2
+			attacker.data.attack_damage += 1
+			attacker.data.current_exp = 0
+			attacker.data.restore_stats() # Heal fully
+			attacker._sync_from_data() # Update visuals
+			attacker._spawn_floating_text("LEVEL UP!", Color.YELLOW)
+			CampaignState.save_game()
 	
 	defender.take_damage(damage)
 	
@@ -688,17 +697,6 @@ func _attack_unit(attacker: Unit, defender: Unit):
 				_damage_terrain(s_pos, 1)
 
 	if defender.current_hp <= 0:
-		# KILL TRIGGERED
-		if attacker.team == "Player" and attacker.data.current_exp >= attacker.max_hp:
-			attacker.data.level += 1
-			attacker.data.max_hp += 2
-			attacker.data.attack_damage += 1
-			attacker.data.current_exp = 0
-			attacker.data.restore_stats() # Heal fully
-			attacker._sync_from_data() # Update visuals
-			attacker._spawn_floating_text("LEVEL UP!", Color.YELLOW)
-			CampaignState.save_game()
-
 		var dead_pos = defender.grid_position
 		units.erase(dead_pos)
 		units_by_id.erase(defender.data.unit_id)
