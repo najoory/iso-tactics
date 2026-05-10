@@ -43,6 +43,7 @@ var is_targeted: bool = false:
 signal movement_finished
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var selection_highlight: Sprite2D = $SelectionHighlight
 @onready var target_indicator: Sprite2D = $TargetIndicator
 @onready var hold_indicator: Sprite2D = $HoldIndicator
@@ -61,6 +62,8 @@ var sprite_archer = preload("res://assets/unit_archer.png")
 var sprite_ballista = preload("res://assets/unit_ballista.png")
 
 var is_moving: bool = false
+var current_direction: String = "south"
+var current_animation: String = "idle"
 
 func _ready():
 	if data:
@@ -90,6 +93,38 @@ func _sync_from_data():
 			"Knight": sprite.texture = sprite_knight
 			"Archer": sprite.texture = sprite_archer
 			"Ballista": sprite.texture = sprite_ballista
+
+	if animated_sprite:
+		var frames = SpriteFrames.new()
+		var dirs = ["south", "south-west", "west", "north-west", "north", "north-east", "east", "south-east"]
+		var base_path = "res://assets/pixellab/" + unit_class.to_lower() + "/rotations/"
+		var has_frames = false
+		for d in dirs:
+			var tex_path = base_path + d + ".png"
+			var tex = null
+			if ResourceLoader.exists(tex_path):
+				tex = load(tex_path)
+			else:
+				var global_path = ProjectSettings.globalize_path(tex_path)
+				if FileAccess.file_exists(global_path):
+					var img = Image.load_from_file(global_path)
+					if img: tex = ImageTexture.create_from_image(img)
+			if tex:
+				frames.add_animation("idle_" + d)
+				frames.add_frame("idle_" + d, tex)
+				# Also add to attack/walk just to fallback if needed
+				frames.add_animation("attack_" + d)
+				frames.add_frame("attack_" + d, tex)
+				frames.add_animation("walk_" + d)
+				frames.add_frame("walk_" + d, tex)
+				has_frames = true
+		if has_frames:
+			animated_sprite.sprite_frames = frames
+			animated_sprite.play("idle_" + current_direction)
+			if sprite: sprite.visible = false
+		else:
+			animated_sprite.sprite_frames = null
+			if sprite: sprite.visible = true
 
 func setup(pos: Vector2i, world_pos: Vector2):
 	grid_position = pos
@@ -123,6 +158,11 @@ func _flash_red():
 		sprite.modulate = original_modulate
 
 func attack_animation(target_world_pos: Vector2):
+	var dir_vec = target_world_pos - global_position
+	current_direction = get_direction_string(dir_vec)
+	current_animation = "attack"
+	_update_visuals()
+
 	if attack_range > 1:
 		var projectile = projectile_scene.instantiate()
 		get_parent().add_child(projectile)
@@ -137,6 +177,9 @@ func attack_animation(target_world_pos: Vector2):
 		slash.position = target_world_pos
 		tween.tween_property(self, "position", original_pos, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN_OUT)
 		await tween.finished
+	
+	current_animation = "idle"
+	_update_visuals()
 
 func _die():
 	print(unit_name, " has died.")
@@ -148,18 +191,42 @@ func _die():
 func move_along_path_raw(path: Array[Vector2], grid_path: Array[Vector2i]):
 	if path.is_empty(): return
 	is_moving = true
+	current_animation = "walk"
 	for i in range(path.size()):
 		var target_world = path[i]
 		var target_grid = grid_path[i]
+		
+		var dir_vec = target_world - position
+		if dir_vec.length() > 0.1:
+			current_direction = get_direction_string(dir_vec)
+		_update_visuals()
+
 		if move_particles:
 			move_particles.emitting = true
 		var tween = create_tween()
 		tween.tween_property(self, "position", target_world, 0.2).set_trans(Tween.TRANS_LINEAR)
 		await tween.finished
 		grid_position = target_grid
+	
 	is_moving = false
+	current_animation = "idle"
 	_update_visuals()
 	movement_finished.emit()
+
+func get_direction_string(target_vector: Vector2) -> String:
+	var angle = target_vector.angle()
+	var angle_deg = rad_to_deg(angle)
+	if angle_deg < 0: angle_deg += 360
+	
+	if angle_deg >= 337.5 or angle_deg < 22.5: return "east"
+	if angle_deg >= 22.5 and angle_deg < 67.5: return "south-east"
+	if angle_deg >= 67.5 and angle_deg < 112.5: return "south"
+	if angle_deg >= 112.5 and angle_deg < 157.5: return "south-west"
+	if angle_deg >= 157.5 and angle_deg < 202.5: return "west"
+	if angle_deg >= 202.5 and angle_deg < 247.5: return "north-west"
+	if angle_deg >= 247.5 and angle_deg < 292.5: return "north"
+	if angle_deg >= 292.5 and angle_deg < 337.5: return "north-east"
+	return "south"
 
 func _update_visuals():
 	if not is_inside_tree() or not hp_bar or not ap_label: return
@@ -182,7 +249,18 @@ func _update_visuals():
 		if level > 1: level_label.add_theme_color_override("font_color", Color(1, 0.84, 0))
 		else: level_label.add_theme_color_override("font_color", Color(1, 1, 1))
 	
+	# Update animation
+	if animated_sprite and animated_sprite.sprite_frames:
+		var anim_name = current_animation + "_" + current_direction
+		if animated_sprite.sprite_frames.has_animation(anim_name):
+			animated_sprite.play(anim_name)
+		else:
+			var fallback = "idle_" + current_direction
+			if animated_sprite.sprite_frames.has_animation(fallback):
+				animated_sprite.play(fallback)
+	
 	if sprite:
+		sprite.visible = not (animated_sprite and animated_sprite.sprite_frames)
 		if is_selected:
 			sprite.modulate = Color(1.2, 1.2, 1.2)
 		else:

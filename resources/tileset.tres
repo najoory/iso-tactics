@@ -1,16 +1,18 @@
-[gd_resource type="TileSet" format=3 uid="uid://chu8ysmjfyxbn"]
+[gd_resource type="TileSet" load_steps=10 format=3]
 
-[ext_resource type="Texture2D" uid="uid://iu0gghrin3ib" path="res://assets/hex_tile.png" id="1_hex"]
-[ext_resource type="Texture2D" uid="uid://dtvmi14dylo2v" path="res://assets/hex_highlight.png" id="2_highlight"]
-[ext_resource type="Texture2D" uid="uid://bmtd70nnh5qx1" path="res://assets/hex_forest.png" id="3_forest"]
-[ext_resource type="Texture2D" uid="uid://csypdfmsgupwu" path="res://assets/hex_water.png" id="4_water"]
-[ext_resource type="Texture2D" uid="uid://ciy3s1cb7wfdm" path="res://assets/hex_mountain.png" id="5_mountain"]
-[ext_resource type="Texture2D" uid="uid://bxqaega6vq4rg" path="res://assets/hex_attack_highlight.png" id="6_attack_highlight"]
-[ext_resource type="Texture2D" uid="uid://dtjfu7wsw2bvr" path="res://assets/hex_house.png" id="7_house"]
-[ext_resource type="Texture2D" uid="uid://bkfe5hub7e5jt" path="res://assets/hex_wall.png" id="8_wall"]
+[ext_resource type="Texture2D" path="res://assets/pixellab/grass_0.png" id="1_grass"]
+[ext_resource type="Texture2D" path="res://assets/hex_highlight.png" id="2_highlight"]
+[ext_resource type="Texture2D" path="res://assets/hex_forest.png" id="3_forest"]
+[ext_resource type="Texture2D" path="res://assets/hex_water.png" id="4_water"]
+[ext_resource type="Texture2D" path="res://assets/hex_mountain.png" id="5_mountain"]
+[ext_resource type="Texture2D" path="res://assets/hex_attack_highlight.png" id="6_attack_highlight"]
+[ext_resource type="Texture2D" path="res://assets/hex_house.png" id="7_house"]
+[ext_resource type="Texture2D" path="res://assets/hex_wall.png" id="8_wall"]
+[ext_resource type="Texture2D" path="res://assets/pixellab/ruins_0.png" id="9_ruins"]
+[ext_resource type="Texture2D" path="res://assets/pixellab/corpse_0.png" id="10_corpse"]
 
 [sub_resource type="TileSetAtlasSource" id="0"]
-texture = ExtResource("1_hex")
+texture = ExtResource("1_grass")
 texture_region_size = Vector2i(64, 48)
 0:0/0 = 0
 
@@ -49,8 +51,19 @@ texture = ExtResource("8_wall")
 texture_region_size = Vector2i(64, 48)
 0:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="8"]
+texture = ExtResource("9_ruins")
+texture_region_size = Vector2i(64, 48)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="9"]
+texture = ExtResource("10_corpse")
+texture_region_size = Vector2i(64, 48)
+0:0/0 = 0
+
 [resource]
 tile_shape = 3
+tile_layout = 0
 tile_size = Vector2i(64, 48)
 sources/0 = SubResource("0")
 sources/1 = SubResource("1")
@@ -60,3 +73,5 @@ sources/4 = SubResource("4")
 sources/5 = SubResource("5")
 sources/6 = SubResource("6")
 sources/7 = SubResource("7")
+sources/8 = SubResource("8")
+sources/9 = SubResource("9")

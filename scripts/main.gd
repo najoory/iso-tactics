@@ -27,12 +27,12 @@ var grid_size = Vector2i(15, 15)
 enum Turn { PLAYER, ENEMY }
 var current_turn: Turn = Turn.PLAYER
 
-enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL }
+enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CORPSE }
 var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
 func _ready():
-	print("Iteration 7 Tactical Game Initialized!")
+	print("Iteration 8 Professional Art Update Initialized!")
 	_setup_astar()
 	_draw_procedural_map()
 	_spawn_units()
@@ -81,7 +81,6 @@ func _on_hold_position_toggled(toggled: bool):
 			selected_unit.data.active_order = {}
 		selected_unit._update_visuals()
 		_draw_all_order_indicators()
-		print("Hold Position toggled for ", selected_unit.unit_name, ": ", toggled)
 
 func _process(_delta):
 	_update_tooltip_and_tips()
@@ -103,12 +102,15 @@ func _update_tooltip_and_tips():
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
 		tooltip_stats.text = "HP: " + str(unit.current_hp) + "/" + str(unit.max_hp) + "\nAP: " + str(unit.current_ap) + "/" + str(unit.max_ap)
-	elif terrain_hp.has(grid_pos):
+	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) in [Terrain.RUIN, Terrain.CORPSE]:
 		var terrain = grid_data[grid_pos]
 		tooltip.visible = true
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = str(Terrain.keys()[terrain])
-		tooltip_stats.text = "HP: " + str(terrain_hp[grid_pos])
+		if terrain_hp.has(grid_pos):
+			tooltip_stats.text = "HP: " + str(terrain_hp[grid_pos])
+		else:
+			tooltip_stats.text = "Rubble / Remains"
 	else:
 		tooltip.visible = false
 
@@ -244,6 +246,8 @@ func _draw_procedural_map():
 			Terrain.MOUNTAIN: source_id = 4
 			Terrain.HOUSE: source_id = 6
 			Terrain.WALL: source_id = 7
+			Terrain.RUIN: source_id = 8
+			Terrain.CORPSE: source_id = 9
 		tile_map.set_cell(coords, source_id, Vector2i(0, 0))
 
 func _spawn_units():
@@ -580,9 +584,13 @@ func _attack_unit(attacker: Unit, defender: Unit):
 				_damage_terrain(s_pos, 1)
 
 	if defender.current_hp <= 0:
-		units.erase(defender.grid_position)
+		var dead_pos = defender.grid_position
+		units.erase(dead_pos)
 		units_by_id.erase(defender.data.unit_id)
-		astar.set_point_disabled(_get_id(defender.grid_position), false)
+		astar.set_point_disabled(_get_id(dead_pos), false)
+		if grid_data.get(dead_pos) == Terrain.GRASS:
+			grid_data[dead_pos] = Terrain.CORPSE
+			tile_map.set_cell(dead_pos, 9, Vector2i(0, 0))
 		_check_game_over()
 	if is_instance_valid(attacker): _show_unit_total_range(attacker)
 	_draw_all_order_indicators()
@@ -616,8 +624,8 @@ func _damage_terrain(grid_pos: Vector2i, amount: int):
 
 func _destroy_terrain(grid_pos: Vector2i):
 	terrain_hp.erase(grid_pos)
-	grid_data[grid_pos] = Terrain.GRASS
-	tile_map.set_cell(grid_pos, 0, Vector2i(0, 0))
+	grid_data[grid_pos] = Terrain.RUIN
+	tile_map.set_cell(grid_pos, 8, Vector2i(0, 0))
 	var id = _get_id(grid_pos)
 	astar.set_point_disabled(id, false)
 	astar.set_point_weight_scale(id, 1.0)

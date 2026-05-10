@@ -20,6 +20,10 @@ var current_ap: int = 5
 var active_order: Dictionary = {} # {"type": "attack", "target_id": int, "target_grid": Vector2i}
 var hold_position: bool = false
 
+# Visuals
+var current_direction: String = "south"
+var current_animation: String = "idle"
+
 func upgrade():
 	level += 1
 	max_hp += 2

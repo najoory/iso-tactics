@@ -32,7 +32,17 @@
 
 ---
 
-## Iteration 8: Fog of War & Stealth (Upcoming)
+## Iteration 8: Professional Art Upgrade & Animations (Current)
+*   **Goal:** Replace placeholder art with high-quality AI-generated sprites and tiles.
+*   **Tasks:**
+	*   **8-Directional Units:** Generate 8 directional views for all unit types using PixelLab.
+	*   **Animated Actions:** Implement Walk and Attack animations for all units.
+	*   **Environmental Polish:** Replace tiles with seamless textures (Grass, Ruins, Corpses).
+	*   **Refactored Unit Logic:** Update `unit.gd` to handle multi-directional sprites and animation states.
+
+---
+
+## Iteration 9: Fog of War & Stealth (Upcoming)
 *   **Tasks:**
 	*   Implement Fog of War (Hexes hidden until within unit vision range).
 	*   Add "Scout" class or ability to Archers (increased vision).
