@@ -14,74 +14,63 @@
 
 [sub_resource type="TileSetAtlasSource" id="0"]
 texture = ExtResource("1_grass")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="1"]
 texture = ExtResource("2_highlight")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="2"]
 texture = ExtResource("3_forest")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="3"]
 texture = ExtResource("4_water")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="4"]
 texture = ExtResource("5_mountain")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="5"]
 texture = ExtResource("6_attack_highlight")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="6"]
 texture = ExtResource("7_house")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="7"]
 texture = ExtResource("8_wall")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="8"]
 texture = ExtResource("9_ruins")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="9"]
 texture = ExtResource("10_corpse")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [sub_resource type="TileSetAtlasSource" id="10"]
 texture = ExtResource("11_castle")
-texture_region_size = Vector2i(64, 75)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -10)
 
 [resource]
 tile_shape = 3
 tile_layout = 0
-tile_size = Vector2i(64, 56)
+tile_size = Vector2i(64, 48)
 sources/0 = SubResource("0")
 sources/1 = SubResource("1")
 sources/2 = SubResource("2")

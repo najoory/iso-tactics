@@ -135,4 +135,3 @@ func load_game() -> bool:
 			player_roster.append(unit)
 		return true
 	return false
-urn false
