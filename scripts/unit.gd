@@ -88,23 +88,11 @@ func _sync_from_data():
 		var frames = SpriteFrames.new()
 		var dirs = ["south", "south-west", "west", "north-west", "north", "north-east", "east", "south-east"]
 		
-		# Identify folder with fallbacks
-		var folder_name = unit_class.to_lower().replace(" ", "_")
-		if unit_class == "Insurgent": folder_name = "insurgent"
-		elif unit_class == "Shadow Assassin": folder_name = "shadow_assassin"
-		elif team == "Enemy":
-			var low_class = unit_class.to_lower()
-			if "goblin" in low_class: folder_name = "goblin"
-			elif "brute" in low_class: folder_name = "orc_brute"
-			elif "overlord" in low_class: folder_name = "orc_overlord"
-			elif "insurgent" in low_class: folder_name = "insurgent"
-			elif "assassin" in low_class: folder_name = "shadow_assassin"
-			elif "archer" in low_class: folder_name = "orc_archer"
-			elif "ballista" in low_class: folder_name = "orc_ballista"
-			else: folder_name = "knight" # Fallback for unknown enemies
-		
+		# CENTRALIZED: Load folder from unit_data config
+		var folder_name = data.sprite_folder
 		var base_path = "res://assets/units/" + folder_name + "/rotations/"
 		var has_frames = false
+		
 		for d in dirs:
 			var tex_path = base_path + d + ".png"
 			var tex = null

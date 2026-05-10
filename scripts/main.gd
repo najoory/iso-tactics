@@ -32,14 +32,10 @@ var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
 func _ready():
-	print("Iteration 8 Kenney Pack Overhaul Initialized!")
+	print("Iteration 8 Professional Art Update Initialized!")
 	_setup_astar()
 	_draw_procedural_map()
 	_spawn_units()
-	
-	# Enable Y-sorting for tall Kenney assets
-	tile_map.y_sort_enabled = true
-	units_container.y_sort_enabled = true
 	
 	execute_orders_button.pressed.connect(_execute_player_orders)
 	hold_position_button.toggled.connect(_on_hold_position_toggled)
@@ -85,7 +81,6 @@ func _on_hold_position_toggled(toggled: bool):
 			selected_unit.data.active_order = {}
 		selected_unit._update_visuals()
 		_draw_all_order_indicators()
-		print("Hold Position toggled for ", selected_unit.unit_name, ": ", toggled)
 
 func _process(_delta):
 	_update_tooltip_and_tips()
@@ -273,6 +268,7 @@ func _spawn_units():
 	var stage = CampaignState.current_stage
 	if stage % 5 == 0:
 		var boss_data = _create_enemy_data("Orc Overlord", "Orc Overlord")
+		# Scale boss manually
 		boss_data.max_hp += (stage * 4)
 		boss_data.attack_damage += floor(stage / 2.0)
 		boss_data.restore_stats()
@@ -309,6 +305,8 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		data.attack_damage = stats.attack_damage
 		data.attack_cost = stats.attack_cost
 		data.attack_range = stats.attack_range
+		data.sprite_folder = stats.get("sprite_folder", "knight")
+		
 		if u_class.contains("Archer"): data.unit_class = "Archer"
 		elif u_class.contains("Ballista"): data.unit_class = "Ballista"
 		elif u_class.contains("Insurgent"): data.unit_class = "Insurgent"
@@ -325,7 +323,6 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData):
 	var unit = unit_scene.instantiate()
 	unit.data = data
 	units_container.add_child(unit)
-	print("Spawned unit: ", unit.unit_name, " at ", pos, " (Node name: ", unit.name, ")")
 	unit.setup(final_pos, tile_map.map_to_local(final_pos))
 	units[final_pos] = unit
 	units_by_id[data.unit_id] = unit

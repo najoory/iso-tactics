@@ -23,8 +23,35 @@
 	  "west": "rotations/west.png",
 	  "south-west": "rotations/south-west.png"
 	},
-	"animations": {}
+	"animations": {
+	  "animating-436797e8": {
+		"south": [
+		  "animations/animating-436797e8/south/frame_000.png",
+		  "animations/animating-436797e8/south/frame_001.png",
+		  "animations/animating-436797e8/south/frame_002.png",
+          "animations/animating-436797e8/south/frame_003.png"
+		],
+		"west": [
+		  "animations/animating-436797e8/west/frame_000.png",
+		  "animations/animating-436797e8/west/frame_001.png",
+		  "animations/animating-436797e8/west/frame_002.png",
+          "animations/animating-436797e8/west/frame_003.png"
+		],
+		"north-west": [
+		  "animations/animating-436797e8/north-west/frame_000.png",
+		  "animations/animating-436797e8/north-west/frame_001.png",
+		  "animations/animating-436797e8/north-west/frame_002.png",
+          "animations/animating-436797e8/north-west/frame_003.png"
+		],
+		"south-west": [
+		  "animations/animating-436797e8/south-west/frame_000.png",
+		  "animations/animating-436797e8/south-west/frame_001.png",
+		  "animations/animating-436797e8/south-west/frame_002.png",
+          "animations/animating-436797e8/south-west/frame_003.png"
+		]
+	  }
+	}
   },
   "export_version": "2.0",
-  "export_date": "2026-05-10T14:04:44.488709"
+  "export_date": "2026-05-10T19:42:26.584712"
 }
