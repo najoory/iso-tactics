@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsdrk02mis7je"
-path="res://.godot/imported/south-west.png-84a11abf7b1a382236225bc9c643d774.ctex"
+uid="uid://ciga5gv517ru4"
+path="res://.godot/imported/east.png-1977aa0e6ab8e3f834bb71d78c843fe0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/units/orc_archer/rotations/south-west.png"
-dest_files=["res://.godot/imported/south-west.png-84a11abf7b1a382236225bc9c643d774.ctex"]
+source_file="res://assets/units/insurgent_archer/rotations/east.png"
+dest_files=["res://.godot/imported/east.png-1977aa0e6ab8e3f834bb71d78c843fe0.ctex"]
 
 [params]
 

@@ -74,6 +74,14 @@
 	  "attack_range": 1,
 	  "sprite_folder": "insurgent"
 	},
+	"Insurgent Archer": {
+	  "max_hp": 5,
+	  "max_ap": 5,
+	  "attack_damage": 2,
+	  "attack_cost": 2,
+	  "attack_range": 3,
+	  "sprite_folder": "insurgent_archer"
+	},
 	"Shadow Assassin": {
 	  "max_hp": 4,
 	  "max_ap": 10,
