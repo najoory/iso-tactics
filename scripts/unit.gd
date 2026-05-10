@@ -112,7 +112,7 @@ func _sync_from_data():
 			elif unit_class.contains("Ballista"): folder_name = "ballista"
 			else: folder_name = "knight"
 		
-		var base_path = "res://assets/pixellab/" + folder_name + "/rotations/"
+		var base_path = "res://assets/units/" + folder_name + "/rotations/"
 		var has_frames = false
 		for d in dirs:
 			var tex_path = base_path + d + ".png"

@@ -27,12 +27,12 @@ var grid_size = Vector2i(15, 15)
 enum Turn { PLAYER, ENEMY }
 var current_turn: Turn = Turn.PLAYER
 
-enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CORPSE }
+enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CORPSE, CASTLE }
 var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
 func _ready():
-	print("Iteration 8 Professional Art Update Initialized!")
+	print("Iteration 8 Kenney Pack Overhaul Initialized!")
 	_setup_astar()
 	_draw_procedural_map()
 	_spawn_units()
@@ -81,6 +81,7 @@ func _on_hold_position_toggled(toggled: bool):
 			selected_unit.data.active_order = {}
 		selected_unit._update_visuals()
 		_draw_all_order_indicators()
+		print("Hold Position toggled for ", selected_unit.unit_name, ": ", toggled)
 
 func _process(_delta):
 	_update_tooltip_and_tips()
@@ -131,7 +132,7 @@ func _update_tooltip_and_tips():
 			if dist <= selected_unit.attack_range and has_los:
 				var damage = selected_unit.attack_damage
 				if target_destructible != null and selected_unit.unit_class == "Ballista":
-					if target_destructible in [Terrain.HOUSE, Terrain.WALL]: damage *= 2
+					if target_destructible in [Terrain.HOUSE, Terrain.WALL, Terrain.CASTLE]: damage *= 2
 				
 				var tip_text = "-" + str(cost) + " AP | -" + str(damage) + " HP"
 				if selected_unit.unit_class == "Ballista": tip_text += " (+SPLASH)"
@@ -200,7 +201,8 @@ func _setup_astar():
 				var center = Vector2(grid_size) / 2.0
 				var dist_to_center = (Vector2(coords) - center).length()
 				if dist_to_center > 4 and dist_to_center < 6: terrain = Terrain.WALL
-				if dist_to_center < 3 and (x+y)%3 == 0: terrain = Terrain.HOUSE
+				if dist_to_center < 1.5: terrain = Terrain.CASTLE
+				elif dist_to_center < 3 and (x+y)%3 == 0: terrain = Terrain.HOUSE
 			
 			grid_data[coords] = terrain
 			var id = _get_id(coords)
@@ -217,6 +219,9 @@ func _setup_astar():
 			elif terrain == Terrain.WALL:
 				astar.set_point_disabled(id, true)
 				terrain_hp[coords] = 8
+			elif terrain == Terrain.CASTLE:
+				astar.set_point_disabled(id, true)
+				terrain_hp[coords] = 20
 
 	for x in range(grid_size.x):
 		for y in range(grid_size.y):
@@ -248,21 +253,19 @@ func _draw_procedural_map():
 			Terrain.WALL: source_id = 7
 			Terrain.RUIN: source_id = 8
 			Terrain.CORPSE: source_id = 9
+			Terrain.CASTLE: source_id = 10
 		tile_map.set_cell(coords, source_id, Vector2i(0, 0))
 
 func _spawn_units():
 	units.clear()
 	units_by_id.clear()
-	
 	var spawn_x = 1
 	for d in CampaignState.player_roster:
 		d.restore_stats()
 		d.active_order = {}
 		_create_unit_from_data(Vector2i(spawn_x, randi_range(2, 8)), d)
 		spawn_x += 1
-	
 	CampaignState.save_game()
-	
 	var stage = CampaignState.current_stage
 	if stage % 5 == 0:
 		var boss_data = _create_enemy_data("Orc Overlord", "Orc Overlord")
@@ -606,7 +609,7 @@ func _attack_terrain(attacker: Unit, target_grid: Vector2i):
 	await attacker.attack_animation(world_pos)
 	
 	var damage = attacker.attack_damage
-	if attacker.unit_class == "Ballista" and grid_data[target_grid] in [Terrain.HOUSE, Terrain.WALL]:
+	if attacker.unit_class == "Ballista" and grid_data[target_grid] in [Terrain.HOUSE, Terrain.WALL, Terrain.CASTLE]:
 		damage *= 2 # Siege damage
 	
 	_damage_terrain(target_grid, damage)
