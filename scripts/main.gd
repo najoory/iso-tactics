@@ -702,6 +702,11 @@ func _attack_unit(attacker: Unit, defender: Unit):
 				_damage_terrain(s_pos, 1)
 
 	if defender.current_hp <= 0:
+		if defender.team == "Player":
+			print("PERMADEATH: Removing ", defender.unit_name, " from roster.")
+			CampaignState.player_roster.erase(defender.data)
+			CampaignState.save_game()
+
 		var dead_pos = defender.grid_position
 		units.erase(dead_pos)
 		units_by_id.erase(defender.data.unit_id)

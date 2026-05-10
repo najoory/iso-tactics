@@ -16,6 +16,7 @@ var max_hp: int
 var current_hp: int:
 	set(value):
 		current_hp = value
+		if data: data.current_hp = value
 		if is_node_ready(): _update_visuals()
 
 var max_ap: int
