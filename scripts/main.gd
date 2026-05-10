@@ -305,7 +305,6 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		data.attack_cost = stats.attack_cost
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
-		data.corpse_sprite = stats.get("corpse_sprite", "")
 		
 		if u_class.contains("Archer"): data.unit_class = "Archer"
 		elif u_class.contains("Ballista"): data.unit_class = "Ballista"

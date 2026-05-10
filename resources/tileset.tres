@@ -1,16 +1,16 @@
-[gd_resource type="TileSet" load_steps=12 format=3]
+[gd_resource type="TileSet" format=3 uid="uid://4x2i1110xcm5"]
 
-[ext_resource type="Texture2D" path="res://assets/kenney/grass.png" id="1_grass"]
-[ext_resource type="Texture2D" path="res://assets/kenney/highlight.png" id="2_highlight"]
-[ext_resource type="Texture2D" path="res://assets/kenney/forest.png" id="3_forest"]
-[ext_resource type="Texture2D" path="res://assets/kenney/water.png" id="4_water"]
-[ext_resource type="Texture2D" path="res://assets/kenney/mountain.png" id="5_mountain"]
-[ext_resource type="Texture2D" path="res://assets/kenney/attack_highlight.png" id="6_attack_highlight"]
-[ext_resource type="Texture2D" path="res://assets/kenney/house.png" id="7_house"]
-[ext_resource type="Texture2D" path="res://assets/kenney/wall.png" id="8_wall"]
-[ext_resource type="Texture2D" path="res://assets/kenney/ruins.png" id="9_ruins"]
-[ext_resource type="Texture2D" path="res://assets/kenney/corpse.png" id="10_corpse"]
-[ext_resource type="Texture2D" path="res://assets/kenney/castle.png" id="11_castle"]
+[ext_resource type="Texture2D" uid="uid://cggutk58lvlk5" path="res://assets/kenney/grass.png" id="1_grass"]
+[ext_resource type="Texture2D" uid="uid://2rca5yur16xr" path="res://assets/kenney/highlight.png" id="2_highlight"]
+[ext_resource type="Texture2D" uid="uid://b0ub0acqykxkv" path="res://assets/kenney/forest.png" id="3_forest"]
+[ext_resource type="Texture2D" uid="uid://c6deogdj8ot0d" path="res://assets/kenney/water.png" id="4_water"]
+[ext_resource type="Texture2D" uid="uid://cayff4bm3cgd0" path="res://assets/kenney/mountain.png" id="5_mountain"]
+[ext_resource type="Texture2D" uid="uid://ri85vjpjs644" path="res://assets/kenney/attack_highlight.png" id="6_attack_highlight"]
+[ext_resource type="Texture2D" uid="uid://b76ja2rmgfemx" path="res://assets/kenney/house.png" id="7_house"]
+[ext_resource type="Texture2D" uid="uid://cwl0jj7jp2evf" path="res://assets/kenney/wall.png" id="8_wall"]
+[ext_resource type="Texture2D" uid="uid://d1ojruc0gdtsq" path="res://assets/kenney/ruins.png" id="9_ruins"]
+[ext_resource type="Texture2D" uid="uid://bjxjmkwansxr6" path="res://assets/kenney/corpse.png" id="10_corpse"]
+[ext_resource type="Texture2D" uid="uid://dmvhdqrdngfvf" path="res://assets/kenney/castle.png" id="11_castle"]
 
 [sub_resource type="TileSetAtlasSource" id="0"]
 texture = ExtResource("1_grass")
@@ -19,6 +19,11 @@ texture_region_size = Vector2i(64, 64)
 
 [sub_resource type="TileSetAtlasSource" id="1"]
 texture = ExtResource("2_highlight")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="10"]
+texture = ExtResource("11_castle")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 
@@ -62,14 +67,8 @@ texture = ExtResource("10_corpse")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="10"]
-texture = ExtResource("11_castle")
-texture_region_size = Vector2i(64, 64)
-0:0/0 = 0
-
 [resource]
 tile_shape = 3
-tile_layout = 0
 tile_size = Vector2i(64, 48)
 sources/0 = SubResource("0")
 sources/1 = SubResource("1")
