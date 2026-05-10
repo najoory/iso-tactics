@@ -100,7 +100,12 @@ func _update_tooltip_and_tips():
 		tooltip.visible = true
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
-		tooltip_stats.text = "HP: " + str(unit.current_hp) + "/" + str(unit.max_hp) + "\nAP: " + str(unit.current_ap) + "/" + str(unit.max_ap)
+		
+		var stats_text = "HP: %d/%d | AP: %d/%d\nDamage: %d" % [unit.current_hp, unit.max_hp, unit.current_ap, unit.max_ap, unit.attack_damage]
+		if unit.team == "Player":
+			stats_text += " | XP: %d/%d" % [unit.data.current_exp, unit.max_hp]
+		
+		tooltip_stats.text = stats_text
 	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) == Terrain.RUIN:
 		var terrain = grid_data[grid_pos]
 		tooltip.visible = true
