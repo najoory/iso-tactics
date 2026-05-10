@@ -258,20 +258,32 @@ func _draw_procedural_map():
 func _spawn_units():
 	units.clear()
 	units_by_id.clear()
+	
 	var spawn_x = 1
 	for d in CampaignState.player_roster:
 		d.restore_stats()
 		d.active_order = {}
 		_create_unit_from_data(Vector2i(spawn_x, randi_range(2, 8)), d)
 		spawn_x += 1
+	
 	CampaignState.save_game()
+	
 	var stage = CampaignState.current_stage
 	if stage % 5 == 0:
+		var castle_spots = []
+		for pos in grid_data:
+			if grid_data[pos] == Terrain.CASTLE:
+				castle_spots.append(pos)
+		
 		var boss_data = _create_enemy_data("Orc Overlord", "Orc Overlord")
 		boss_data.max_hp += (stage * 4)
 		boss_data.attack_damage += floor(stage / 2.0)
 		boss_data.restore_stats()
-		_create_unit_from_data(Vector2i(grid_size.x - 3, grid_size.y / 2), boss_data)
+		
+		var spawn_pos = Vector2i(grid_size.x - 3, grid_size.y / 2)
+		if not castle_spots.is_empty():
+			spawn_pos = castle_spots.pick_random()
+		_create_unit_from_data(spawn_pos, boss_data)
 	else:
 		var count_factor = 2.5 if stage <= 5 else 2.0
 		var enemy_count = 2 + floor(stage / count_factor)
@@ -315,10 +327,24 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 
 func _create_unit_from_data(pos: Vector2i, data: UnitData):
 	var final_pos = pos
-	if astar.is_point_disabled(_get_id(final_pos)):
-		for x in range(grid_size.x):
-			final_pos.x = x
-			if not astar.is_point_disabled(_get_id(final_pos)): break
+	if astar.is_point_disabled(_get_id(final_pos)) or units.has(final_pos):
+		var start_x = 0
+		var end_x = grid_size.x - 1
+		if data.team == "Player":
+			end_x = floor(grid_size.x / 2.0) - 1
+		else:
+			start_x = floor(grid_size.x / 2.0)
+		
+		var found = false
+		for y in range(grid_size.y):
+			for x in range(start_x, end_x + 1):
+				var check_pos = Vector2i(x, y)
+				if not astar.is_point_disabled(_get_id(check_pos)) and not units.has(check_pos):
+					final_pos = check_pos
+					found = true
+					break
+			if found: break
+	
 	var unit = unit_scene.instantiate()
 	unit.data = data
 	units_container.add_child(unit)
