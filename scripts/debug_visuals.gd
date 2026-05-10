@@ -11,13 +11,14 @@ func _init():
 	var source = tm.tile_set.get_source(0)
 	if source is TileSetAtlasSource:
 		print("Source 0 Region Size: ", source.texture_region_size)
-		print("Source 0 Texture Origin: ", source.texture_origin)
+		# FIX: Access texture_origin via get_tile_data(coords)
+		var tile_data = source.get_tile_data(Vector2i(0, 0))
+		if tile_data:
+			print("Tile (0,0) Texture Origin: ", tile_data.texture_origin)
+		else:
+			print("Tile (0,0) has no data.")
 	
-	print("--- Unit Alignment ---")
-	var units = scene.get_node("Units")
-	# Spawn units to see where they land
-	scene._ready()
-	for unit in units.get_children():
-		print("Unit: ", unit.unit_name, " Grid: ", unit.grid_position, " World: ", unit.position)
+	print("--- Static Scene Structure ---")
+	print("Units Container path: ", scene.get_node("Units").get_path())
 	
 	quit()
