@@ -193,10 +193,6 @@ func _setup_astar():
 			if biome == "Wilderness":
 				if (randi() % 100) < 15: terrain = Terrain.FOREST
 				if (randi() % 100) < 5: terrain = Terrain.MOUNTAIN
-			elif biome == "Village":
-				if (randi() % 100) < 10: terrain = Terrain.FOREST
-				if (randi() % 100) < 5: terrain = Terrain.HOUSE
-				if (randi() % 100) < 5: terrain = Terrain.WALL
 			elif biome == "Castle":
 				var center = Vector2(grid_size) / 2.0
 				var dist_to_center = (Vector2(coords) - center).length()
@@ -205,6 +201,31 @@ func _setup_astar():
 				elif dist_to_center < 3 and (x+y)%3 == 0: terrain = Terrain.HOUSE
 			
 			grid_data[coords] = terrain
+
+	if biome == "Village":
+		# Create a few house clusters with surrounding walls
+		for c in range(randi_range(1, 2)):
+			var cluster_center = Vector2i(randi_range(4, grid_size.x - 5), randi_range(4, grid_size.y - 5))
+			for x in range(cluster_center.x - 3, cluster_center.x + 4):
+				for y in range(cluster_center.y - 3, cluster_center.y + 4):
+					var pos = Vector2i(x, y)
+					if grid_data.has(pos):
+						var dist = _get_hex_distance(cluster_center, pos)
+						if dist <= 1:
+							if randi() % 100 < 80: grid_data[pos] = Terrain.HOUSE
+						elif dist == 2:
+							if grid_data[pos] == Terrain.GRASS and randi() % 100 < 85:
+								grid_data[pos] = Terrain.WALL
+		
+		# Add some random forests
+		for pos in grid_data:
+			if grid_data[pos] == Terrain.GRASS and randi() % 100 < 8:
+				grid_data[pos] = Terrain.FOREST
+
+	for x in range(grid_size.x):
+		for y in range(grid_size.y):
+			var coords = Vector2i(x, y)
+			var terrain = grid_data[coords]
 			var id = _get_id(coords)
 			astar.add_point(id, tile_map.map_to_local(coords))
 			
