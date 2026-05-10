@@ -93,11 +93,26 @@ func _sync_from_data():
 			"Knight": sprite.texture = sprite_knight
 			"Archer": sprite.texture = sprite_archer
 			"Ballista": sprite.texture = sprite_ballista
+			"Insurgent": sprite.texture = sprite_ballista # Recycled old peasant sprite
+			"Shadow Assassin":
+				sprite.texture = sprite_knight
+				sprite.modulate = Color(0.1, 0.1, 0.1, 0.7) # Shadowy look
 
 	if animated_sprite:
 		var frames = SpriteFrames.new()
 		var dirs = ["south", "south-west", "west", "north-west", "north", "north-east", "east", "south-east"]
-		var base_path = "res://assets/pixellab/" + unit_class.to_lower() + "/rotations/"
+		
+		# Identify folder with fallbacks
+		var folder_name = unit_class.to_lower().replace(" ", "_")
+		if unit_class == "Insurgent": folder_name = "insurgent"
+		elif unit_class == "Shadow Assassin": folder_name = "knight" # Fallback to knight visuals
+		elif team == "Enemy":
+			# Try specific name, fallback to generic enemy archetypes
+			if unit_class.contains("Archer"): folder_name = "archer"
+			elif unit_class.contains("Ballista"): folder_name = "ballista"
+			else: folder_name = "knight"
+		
+		var base_path = "res://assets/pixellab/" + folder_name + "/rotations/"
 		var has_frames = false
 		for d in dirs:
 			var tex_path = base_path + d + ".png"
@@ -112,7 +127,6 @@ func _sync_from_data():
 			if tex:
 				frames.add_animation("idle_" + d)
 				frames.add_frame("idle_" + d, tex)
-				# Also add to attack/walk just to fallback if needed
 				frames.add_animation("attack_" + d)
 				frames.add_frame("attack_" + d, tex)
 				frames.add_animation("walk_" + d)
@@ -192,21 +206,32 @@ func move_along_path_raw(path: Array[Vector2], grid_path: Array[Vector2i]):
 	if path.is_empty(): return
 	is_moving = true
 	current_animation = "walk"
-	for i in range(path.size()):
-		var target_world = path[i]
-		var target_grid = grid_path[i]
-		
-		var dir_vec = target_world - position
-		if dir_vec.length() > 0.1:
-			current_direction = get_direction_string(dir_vec)
-		_update_visuals()
-
-		if move_particles:
-			move_particles.emitting = true
+	
+	if unit_class == "Shadow Assassin":
+		var final_world = path[-1]
+		var final_grid = grid_path[-1]
 		var tween = create_tween()
-		tween.tween_property(self, "position", target_world, 0.2).set_trans(Tween.TRANS_LINEAR)
+		tween.tween_property(self, "modulate:a", 0, 0.15)
+		tween.tween_callback(func(): position = final_world)
+		tween.tween_property(self, "modulate:a", 1, 0.15)
 		await tween.finished
-		grid_position = target_grid
+		grid_position = final_grid
+	else:
+		for i in range(path.size()):
+			var target_world = path[i]
+			var target_grid = grid_path[i]
+			
+			var dir_vec = target_world - position
+			if dir_vec.length() > 0.1:
+				current_direction = get_direction_string(dir_vec)
+			_update_visuals()
+
+			if move_particles:
+				move_particles.emitting = true
+			var tween = create_tween()
+			tween.tween_property(self, "position", target_world, 0.2).set_trans(Tween.TRANS_LINEAR)
+			await tween.finished
+			grid_position = target_grid
 	
 	is_moving = false
 	current_animation = "idle"
@@ -249,7 +274,6 @@ func _update_visuals():
 		if level > 1: level_label.add_theme_color_override("font_color", Color(1, 0.84, 0))
 		else: level_label.add_theme_color_override("font_color", Color(1, 1, 1))
 	
-	# Update animation
 	if animated_sprite and animated_sprite.sprite_frames:
 		var anim_name = current_animation + "_" + current_direction
 		if animated_sprite.sprite_frames.has_animation(anim_name):
@@ -265,6 +289,9 @@ func _update_visuals():
 			sprite.modulate = Color(1.2, 1.2, 1.2)
 		else:
 			if team == "Enemy":
-				sprite.modulate = Color(1, 0.7, 0.7)
+				if unit_class == "Shadow Assassin":
+					sprite.modulate = Color(0.1, 0.1, 0.1, 0.7)
+				else:
+					sprite.modulate = Color(1, 0.7, 0.7)
 			else:
 				sprite.modulate = Color(1, 1, 1)

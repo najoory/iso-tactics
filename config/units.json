@@ -57,6 +57,20 @@
 	  "attack_damage": 5,
 	  "attack_cost": 3,
 	  "attack_range": 1
+	},
+	"Insurgent": {
+	  "max_hp": 6,
+	  "max_ap": 6,
+	  "attack_damage": 3,
+	  "attack_cost": 2,
+	  "attack_range": 1
+	},
+	"Shadow Assassin": {
+	  "max_hp": 4,
+	  "max_ap": 10,
+	  "attack_damage": 6,
+	  "attack_cost": 2,
+	  "attack_range": 1
 	}
-  }
-}
+	}
+	}

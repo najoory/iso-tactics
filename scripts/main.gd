@@ -276,9 +276,11 @@ func _spawn_units():
 		for i in range(enemy_count):
 			var roll = randi() % 100
 			var e_class = "Goblin"
-			if roll < 35: e_class = "Goblin"
-			elif roll < 65: e_class = "Orc Brute"
-			elif roll < 85: e_class = "Orc Archer"
+			if roll < 25: e_class = "Goblin"
+			elif roll < 45: e_class = "Orc Brute"
+			elif roll < 65: e_class = "Orc Archer"
+			elif roll < 80: e_class = "Insurgent"
+			elif roll < 95: e_class = "Shadow Assassin"
 			else: e_class = "Orc Ballista"
 			
 			var enemy_data = _create_enemy_data(e_class, e_class)
@@ -302,6 +304,8 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		data.attack_range = stats.attack_range
 		if u_class.contains("Archer"): data.unit_class = "Archer"
 		elif u_class.contains("Ballista"): data.unit_class = "Ballista"
+		elif u_class.contains("Insurgent"): data.unit_class = "Insurgent"
+		elif u_class.contains("Shadow Assassin"): data.unit_class = "Shadow Assassin"
 		else: data.unit_class = "Knight"
 	return data
 
