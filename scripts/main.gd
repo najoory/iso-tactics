@@ -267,8 +267,8 @@ func _spawn_units():
 		boss_data.restore_stats()
 		_create_unit_from_data(Vector2i(grid_size.x - 3, grid_size.y / 2), boss_data)
 	else:
-		var count_factor = 3.5 if stage <= 5 else 3.0
-		var enemy_count = 1 + floor(stage / count_factor)
+		var count_factor = 2.5 if stage <= 5 else 2.0
+		var enemy_count = 2 + floor(stage / count_factor)
 		for i in range(enemy_count):
 			var roll = randi() % 100
 			var e_class = "Goblin"
