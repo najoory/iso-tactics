@@ -62,7 +62,6 @@ func _on_reward_selected(type: String):
 	var alive_roster: Array[UnitData] = []
 	for data in CampaignState.player_roster:
 		if data.current_hp > 0:
-			data.upgrade()
 			alive_roster.append(data)
 	CampaignState.player_roster = alive_roster
 	
@@ -346,11 +345,18 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 	data.team = "Enemy"
 	data.unit_id = CampaignState._get_next_id()
 	
+	var stage = CampaignState.current_stage
+	# Level Scaling: Stage 1-5 -> 1-5, Stage 6-10 -> 5-10, etc.
+	var base_lvl = max(1, floor((stage - 1) / 5.0) * 5)
+	data.level = base_lvl + (randi() % 5)
+	
 	var stats = CampaignState.get_base_stats("Enemy", u_class)
 	if not stats.is_empty():
-		data.max_hp = stats.max_hp
+		# Scale stats by level: +2 HP, +1 DMG per level above 1
+		var lvl_bonus = data.level - 1
+		data.max_hp = stats.max_hp + (lvl_bonus * 2)
 		data.max_ap = stats.max_ap
-		data.attack_damage = stats.attack_damage
+		data.attack_damage = stats.attack_damage + lvl_bonus
 		data.attack_cost = stats.attack_cost
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
@@ -361,6 +367,8 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		elif u_class.contains("Insurgent"): data.unit_class = "Insurgent"
 		elif u_class.contains("Shadow Assassin"): data.unit_class = "Shadow Assassin"
 		else: data.unit_class = "Knight"
+	
+	data.restore_stats()
 	return data
 
 func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool = false):
@@ -666,6 +674,11 @@ func _attack_unit(attacker: Unit, defender: Unit):
 	var damage = attacker.attack_damage
 	if attacker.attack_range > 1 and _get_hex_distance(attacker.grid_position, defender.grid_position) == 1:
 		damage = ceili(damage * 0.5)
+	
+	# Grant XP: damage equal to own max HP triggers level up eligibility
+	if attacker.team == "Player":
+		attacker.data.current_exp += min(damage, defender.current_hp)
+	
 	defender.take_damage(damage)
 	
 	if attacker.unit_class == "Ballista":
@@ -675,11 +688,23 @@ func _attack_unit(attacker: Unit, defender: Unit):
 				_damage_terrain(s_pos, 1)
 
 	if defender.current_hp <= 0:
+		# KILL TRIGGERED
+		if attacker.team == "Player" and attacker.data.current_exp >= attacker.max_hp:
+			attacker.data.level += 1
+			attacker.data.max_hp += 2
+			attacker.data.attack_damage += 1
+			attacker.data.current_exp = 0
+			attacker.data.restore_stats() # Heal fully
+			attacker._sync_from_data() # Update visuals
+			attacker._spawn_floating_text("LEVEL UP!", Color.YELLOW)
+			CampaignState.save_game()
+
 		var dead_pos = defender.grid_position
 		units.erase(dead_pos)
 		units_by_id.erase(defender.data.unit_id)
 		astar.set_point_disabled(_get_id(dead_pos), false)
 		_check_game_over()
+	
 	if is_instance_valid(attacker): _show_unit_total_range(attacker)
 	_draw_all_order_indicators()
 

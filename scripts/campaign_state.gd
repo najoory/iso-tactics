@@ -103,7 +103,8 @@ func save_game():
 				"ap": unit.max_ap,
 				"cost": unit.attack_cost,
 				"hold": unit.hold_position,
-				"sprite_folder": unit.sprite_folder
+				"sprite_folder": unit.sprite_folder,
+				"exp": unit.current_exp
 			})
 		file.store_string(JSON.stringify(data))
 
@@ -129,6 +130,7 @@ func load_game() -> bool:
 			unit.attack_cost = u.get("cost", 2)
 			unit.hold_position = u.get("hold", false)
 			unit.sprite_folder = u.get("sprite_folder", "knight")
+			unit.current_exp = u.get("exp", 0)
 			unit.restore_stats()
 			player_roster.append(unit)
 		return true
