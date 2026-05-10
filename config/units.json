@@ -6,7 +6,8 @@
 	  "attack_damage": 4,
 	  "attack_cost": 2,
 	  "attack_range": 1,
-	  "sprite_folder": "knight"
+	  "sprite_folder": "knight",
+	  "corpse_sprite": "res://assets/units/corpses/knight.png"
 	},
 	"Archer": {
 	  "max_hp": 8,
@@ -14,7 +15,8 @@
 	  "attack_damage": 3,
 	  "attack_cost": 2,
 	  "attack_range": 3,
-	  "sprite_folder": "archer"
+	  "sprite_folder": "archer",
+	  "corpse_sprite": "res://assets/units/corpses/archer.png"
 	},
 	"Ballista": {
 	  "max_hp": 8,
@@ -22,7 +24,8 @@
 	  "attack_damage": 5,
 	  "attack_cost": 3,
 	  "attack_range": 8,
-	  "sprite_folder": "ballista"
+	  "sprite_folder": "ballista",
+	  "corpse_sprite": "res://assets/units/corpses/ballista.png"
 	}
   },
   "Enemy": {
@@ -32,7 +35,8 @@
 	  "attack_damage": 1,
 	  "attack_cost": 2,
 	  "attack_range": 1,
-	  "sprite_folder": "goblin"
+	  "sprite_folder": "goblin",
+	  "corpse_sprite": "res://assets/units/corpses/goblin.png"
 	},
 	"Orc Brute": {
 	  "max_hp": 8,
@@ -40,7 +44,8 @@
 	  "attack_damage": 3,
 	  "attack_cost": 3,
 	  "attack_range": 1,
-	  "sprite_folder": "orc_brute"
+	  "sprite_folder": "orc_brute",
+	  "corpse_sprite": "res://assets/units/corpses/orc.png"
 	},
 	"Orc Archer": {
 	  "max_hp": 5,
@@ -48,7 +53,8 @@
 	  "attack_damage": 2,
 	  "attack_cost": 2,
 	  "attack_range": 3,
-	  "sprite_folder": "orc_archer"
+	  "sprite_folder": "orc_archer",
+	  "corpse_sprite": "res://assets/units/corpses/orc.png"
 	},
 	"Orc Ballista": {
 	  "max_hp": 10,
@@ -56,7 +62,8 @@
 	  "attack_damage": 4,
 	  "attack_cost": 4,
 	  "attack_range": 5,
-	  "sprite_folder": "orc_ballista"
+	  "sprite_folder": "orc_ballista",
+	  "corpse_sprite": "res://assets/units/corpses/ballista.png"
 	},
 	"Orc Overlord": {
 	  "max_hp": 20,
@@ -64,7 +71,8 @@
 	  "attack_damage": 5,
 	  "attack_cost": 3,
 	  "attack_range": 1,
-	  "sprite_folder": "orc_overlord"
+	  "sprite_folder": "orc_overlord",
+	  "corpse_sprite": "res://assets/units/corpses/orc.png"
 	},
 	"Insurgent": {
 	  "max_hp": 6,
@@ -72,7 +80,8 @@
 	  "attack_damage": 3,
 	  "attack_cost": 2,
 	  "attack_range": 1,
-	  "sprite_folder": "insurgent"
+	  "sprite_folder": "insurgent",
+	  "corpse_sprite": "res://assets/units/corpses/knight.png"
 	},
 	"Shadow Assassin": {
 	  "max_hp": 4,
@@ -80,7 +89,8 @@
 	  "attack_damage": 6,
 	  "attack_cost": 2,
 	  "attack_range": 1,
-	  "sprite_folder": "shadow_assassin"
+	  "sprite_folder": "shadow_assassin",
+	  "corpse_sprite": "res://assets/units/corpses/archer.png"
 	}
   }
 }

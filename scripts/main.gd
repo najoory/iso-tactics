@@ -27,7 +27,7 @@ var grid_size = Vector2i(15, 15)
 enum Turn { PLAYER, ENEMY }
 var current_turn: Turn = Turn.PLAYER
 
-enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CORPSE, CASTLE }
+enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CASTLE }
 var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
@@ -102,7 +102,7 @@ func _update_tooltip_and_tips():
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
 		tooltip_stats.text = "HP: " + str(unit.current_hp) + "/" + str(unit.max_hp) + "\nAP: " + str(unit.current_ap) + "/" + str(unit.max_ap)
-	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) in [Terrain.RUIN, Terrain.CORPSE]:
+	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) == Terrain.RUIN:
 		var terrain = grid_data[grid_pos]
 		tooltip.visible = true
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
@@ -110,7 +110,7 @@ func _update_tooltip_and_tips():
 		if terrain_hp.has(grid_pos):
 			tooltip_stats.text = "HP: " + str(terrain_hp[grid_pos])
 		else:
-			tooltip_stats.text = "Rubble / Remains"
+			tooltip_stats.text = "Rubble"
 	else:
 		tooltip.visible = false
 
@@ -141,9 +141,10 @@ func _update_tooltip_and_tips():
 				var best_spot = _find_best_attack_hex(selected_unit, grid_pos)
 				if best_spot != Vector2i(-1, -1):
 					var path = _get_path(selected_unit.grid_position, best_spot)
-					var total_cost = _get_path_cost(path) + cost
-					combat_tip.text = "-" + str(total_cost) + " AP | Target Range"
-					combat_tip.add_theme_color_override("font_color", Color.WHITE if total_cost <= selected_unit.current_ap else Color.RED)
+					if not path.is_empty():
+						var total_cost = _get_path_cost(path) + cost
+						combat_tip.text = "-" + str(total_cost) + " AP | Target Range"
+						combat_tip.add_theme_color_override("font_color", Color.WHITE if total_cost <= selected_unit.current_ap else Color.RED)
 				else:
 					combat_tip.text = "UNREACHABLE"
 					combat_tip.add_theme_color_override("font_color", Color.RED)
@@ -251,7 +252,6 @@ func _draw_procedural_map():
 			Terrain.HOUSE: source_id = 6
 			Terrain.WALL: source_id = 7
 			Terrain.RUIN: source_id = 8
-			Terrain.CORPSE: source_id = 9
 			Terrain.CASTLE: source_id = 10
 		tile_map.set_cell(coords, source_id, Vector2i(0, 0))
 
@@ -268,7 +268,6 @@ func _spawn_units():
 	var stage = CampaignState.current_stage
 	if stage % 5 == 0:
 		var boss_data = _create_enemy_data("Orc Overlord", "Orc Overlord")
-		# Scale boss manually
 		boss_data.max_hp += (stage * 4)
 		boss_data.attack_damage += floor(stage / 2.0)
 		boss_data.restore_stats()
@@ -306,6 +305,7 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		data.attack_cost = stats.attack_cost
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
+		data.corpse_sprite = stats.get("corpse_sprite", "")
 		
 		if u_class.contains("Archer"): data.unit_class = "Archer"
 		elif u_class.contains("Ballista"): data.unit_class = "Ballista"
@@ -357,7 +357,7 @@ func _handle_click():
 				var best_spot = _find_best_attack_hex(selected_unit, grid_pos)
 				if best_spot != Vector2i(-1, -1):
 					var path = _get_path(selected_unit.grid_position, best_spot)
-					if _get_path_cost(path) + selected_unit.attack_cost <= selected_unit.current_ap:
+					if not path.is_empty() and _get_path_cost(path) + selected_unit.attack_cost <= selected_unit.current_ap:
 						await _move_selected_unit(best_spot)
 						await _attack_unit(selected_unit, unit)
 					else:
@@ -370,7 +370,7 @@ func _handle_click():
 			var best_spot = _find_best_attack_hex(selected_unit, grid_pos)
 			if best_spot != Vector2i(-1, -1):
 				var path = _get_path(selected_unit.grid_position, best_spot)
-				if _get_path_cost(path) + selected_unit.attack_cost <= selected_unit.current_ap:
+				if not path.is_empty() and _get_path_cost(path) + selected_unit.attack_cost <= selected_unit.current_ap:
 					await _move_selected_unit(best_spot)
 					await _attack_terrain(selected_unit, grid_pos)
 	else:
@@ -597,9 +597,6 @@ func _attack_unit(attacker: Unit, defender: Unit):
 		units.erase(dead_pos)
 		units_by_id.erase(defender.data.unit_id)
 		astar.set_point_disabled(_get_id(dead_pos), false)
-		if grid_data.get(dead_pos) == Terrain.GRASS:
-			grid_data[dead_pos] = Terrain.CORPSE
-			tile_map.set_cell(dead_pos, 9, Vector2i(0, 0))
 		_check_game_over()
 	if is_instance_valid(attacker): _show_unit_total_range(attacker)
 	_draw_all_order_indicators()

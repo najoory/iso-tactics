@@ -16,6 +16,7 @@ var current_ap: int = 5
 @export var attack_range: int = 1
 @export var level: int = 1
 @export var sprite_folder: String = "knight"
+@export var corpse_sprite: String = ""
 
 # Strategic Order
 var active_order: Dictionary = {} # {"type": "attack", "target_id": int, "target_grid": Vector2i}

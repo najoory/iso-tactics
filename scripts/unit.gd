@@ -60,6 +60,7 @@ var floating_label_scene = preload("res://scenes/floating_label.tscn")
 var is_moving: bool = false
 var current_direction: String = "south"
 var current_animation: String = "idle"
+var is_dead: bool = false
 
 func _ready():
 	if data:
@@ -88,7 +89,6 @@ func _sync_from_data():
 		var frames = SpriteFrames.new()
 		var dirs = ["south", "south-west", "west", "north-west", "north", "north-east", "east", "south-east"]
 		
-		# CENTRALIZED: Load folder from unit_data config
 		var folder_name = data.sprite_folder
 		var base_path = "res://assets/units/" + folder_name + "/rotations/"
 		var has_frames = false
@@ -184,13 +184,34 @@ func attack_animation(target_world_pos: Vector2):
 
 func _die():
 	print(unit_name, " has died.")
-	is_moving = true
+	is_dead = true
+	
+	# Load corpse sprite
+	if data.corpse_sprite != "":
+		var tex = load(data.corpse_sprite)
+		if tex:
+			if sprite:
+				sprite.texture = tex
+				sprite.visible = true
+				sprite.modulate = Color(1, 1, 1, 1)
+			if animated_sprite:
+				animated_sprite.visible = false
+	
+	# Hide UI
+	$Control.visible = false
+	$Shadow.visible = false
+	selection_highlight.visible = false
+	target_indicator.visible = false
+	hold_indicator.visible = false
+	
+	# Fade out slightly but keep corpse
 	var tween = create_tween()
-	tween.tween_property(self, "modulate:a", 0, 0.5)
-	tween.tween_callback(queue_free)
+	tween.tween_property(self, "modulate:a", 0.7, 1.0)
+	# We don't queue_free immediately, so the corpse stays!
+	# main.gd will still erase it from the units dictionary to free the hex.
 
 func move_along_path_raw(path: Array[Vector2], grid_path: Array[Vector2i]):
-	if path.is_empty(): return
+	if path.is_empty() or is_dead: return
 	is_moving = true
 	current_animation = "walk"
 	
@@ -241,7 +262,7 @@ func get_direction_string(target_vector: Vector2) -> String:
 	return "south"
 
 func _update_visuals():
-	if not is_inside_tree() or not hp_bar or not ap_label: return
+	if not is_inside_tree() or not hp_bar or not ap_label or is_dead: return
 	
 	if selection_highlight:
 		selection_highlight.visible = is_selected
