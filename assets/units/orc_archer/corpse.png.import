@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c16ik33k087xg"
-path="res://.godot/imported/archer.png-cf1e36652da1c5add7f56cd0cb6c9fc2.ctex"
+uid="uid://dq75ma14arjw0"
+path="res://.godot/imported/corpse.png-55c66021f92e69d75d2694802885ae56.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/units/corpses/archer.png"
-dest_files=["res://.godot/imported/archer.png-cf1e36652da1c5add7f56cd0cb6c9fc2.ctex"]
+source_file="res://assets/units/orc_archer/corpse.png"
+dest_files=["res://.godot/imported/corpse.png-55c66021f92e69d75d2694802885ae56.ctex"]
 
 [params]
 

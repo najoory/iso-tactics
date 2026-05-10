@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcj753fqjp5ow"
-path="res://.godot/imported/orc.png-79906d9d02bc618e546a87708406a1dd.ctex"
+uid="uid://bw1anjhgg7o6j"
+path="res://.godot/imported/corpse.png-9b81f614f66af612c2bf5fd26be02e69.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/units/corpses/orc.png"
-dest_files=["res://.godot/imported/orc.png-79906d9d02bc618e546a87708406a1dd.ctex"]
+source_file="res://assets/units/orc_overlord/corpse.png"
+dest_files=["res://.godot/imported/corpse.png-9b81f614f66af612c2bf5fd26be02e69.ctex"]
 
 [params]
 

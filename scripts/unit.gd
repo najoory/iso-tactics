@@ -186,9 +186,10 @@ func _die():
 	print(unit_name, " has died.")
 	is_dead = true
 	
-	# Load corpse sprite
-	if data.corpse_sprite != "":
-		var tex = load(data.corpse_sprite)
+	# Load corpse sprite dynamically
+	var corpse_path = "res://assets/units/" + data.sprite_folder + "/corpse.png"
+	if ResourceLoader.exists(corpse_path):
+		var tex = load(corpse_path)
 		if tex:
 			if sprite:
 				sprite.texture = tex
@@ -196,6 +197,8 @@ func _die():
 				sprite.modulate = Color(1, 1, 1, 1)
 			if animated_sprite:
 				animated_sprite.visible = false
+	else:
+		print("Warning: No corpse sprite found at ", corpse_path)
 	
 	# Hide UI
 	$Control.visible = false

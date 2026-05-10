@@ -131,8 +131,8 @@ func load_game() -> bool:
 			unit.attack_cost = u.get("cost", 2)
 			unit.hold_position = u.get("hold", false)
 			unit.sprite_folder = u.get("sprite_folder", "knight")
-			unit.corpse_sprite = u.get("corpse_sprite", "")
 			unit.restore_stats()
 			player_roster.append(unit)
 		return true
 	return false
+urn false
