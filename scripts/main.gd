@@ -27,7 +27,7 @@ var grid_size = Vector2i(15, 15)
 enum Turn { PLAYER, ENEMY }
 var current_turn: Turn = Turn.PLAYER
 
-enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CASTLE }
+enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CORPSE, CASTLE }
 var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
@@ -102,7 +102,7 @@ func _update_tooltip_and_tips():
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
 		tooltip_stats.text = "HP: " + str(unit.current_hp) + "/" + str(unit.max_hp) + "\nAP: " + str(unit.current_ap) + "/" + str(unit.max_ap)
-	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) == Terrain.RUIN:
+	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) in [Terrain.RUIN, Terrain.CORPSE]:
 		var terrain = grid_data[grid_pos]
 		tooltip.visible = true
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
@@ -110,7 +110,7 @@ func _update_tooltip_and_tips():
 		if terrain_hp.has(grid_pos):
 			tooltip_stats.text = "HP: " + str(terrain_hp[grid_pos])
 		else:
-			tooltip_stats.text = "Rubble"
+			tooltip_stats.text = "Rubble / Remains"
 	else:
 		tooltip.visible = false
 
@@ -252,6 +252,7 @@ func _draw_procedural_map():
 			Terrain.HOUSE: source_id = 6
 			Terrain.WALL: source_id = 7
 			Terrain.RUIN: source_id = 8
+			Terrain.CORPSE: source_id = 9
 			Terrain.CASTLE: source_id = 10
 		tile_map.set_cell(coords, source_id, Vector2i(0, 0))
 
@@ -259,6 +260,7 @@ func _spawn_units():
 	units.clear()
 	units_by_id.clear()
 	
+	# Spawn Player on the LEFT half
 	var spawn_x = 1
 	for d in CampaignState.player_roster:
 		d.restore_stats()
@@ -270,6 +272,7 @@ func _spawn_units():
 	
 	var stage = CampaignState.current_stage
 	if stage % 5 == 0:
+		# BOSS STAGE: Spawn inside the castle interior
 		var castle_spots = []
 		for pos in grid_data:
 			if grid_data[pos] == Terrain.CASTLE:
@@ -283,10 +286,17 @@ func _spawn_units():
 		var spawn_pos = Vector2i(grid_size.x - 3, grid_size.y / 2)
 		if not castle_spots.is_empty():
 			spawn_pos = castle_spots.pick_random()
-		_create_unit_from_data(spawn_pos, boss_data)
+		_create_unit_from_data(spawn_pos, boss_data, true) # Allow spawning on castle
+		
+		# Add elite guards inside the castle too
+		for i in range(4): # 4 Guards
+			if not castle_spots.is_empty():
+				var guard_pos = castle_spots.pick_random()
+				_create_unit_from_data(guard_pos, _create_enemy_data("Orc Brute", "Elite Guard"), true)
 	else:
-		var count_factor = 2.5 if stage <= 5 else 2.0
-		var enemy_count = 2 + floor(stage / count_factor)
+		# Spawn Enemies on the RIGHT half - INCREASED HORDES
+		var count_factor = 1.8 if stage <= 5 else 1.4 
+		var enemy_count = 3 + floor(stage / count_factor)
 		for i in range(enemy_count):
 			var roll = randi() % 100
 			var e_class = "Goblin"
@@ -301,6 +311,7 @@ func _spawn_units():
 			enemy_data.max_hp += floor(stage * 0.8)
 			enemy_data.attack_damage += floor(stage / 3.0)
 			enemy_data.restore_stats()
+			
 			_create_unit_from_data(Vector2i(grid_size.x - 2, randi_range(2, grid_size.y - 3)), enemy_data)
 
 func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
@@ -325,9 +336,12 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		else: data.unit_class = "Knight"
 	return data
 
-func _create_unit_from_data(pos: Vector2i, data: UnitData):
+func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool = false):
 	var final_pos = pos
-	if astar.is_point_disabled(_get_id(final_pos)) or units.has(final_pos):
+	var is_spot_invalid = (astar.is_point_disabled(_get_id(final_pos)) and not allow_disabled) or units.has(final_pos)
+	
+	if is_spot_invalid:
+		# Restriction: Scan only the team's half
 		var start_x = 0
 		var end_x = grid_size.x - 1
 		if data.team == "Player":
@@ -339,7 +353,8 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData):
 		for y in range(grid_size.y):
 			for x in range(start_x, end_x + 1):
 				var check_pos = Vector2i(x, y)
-				if not astar.is_point_disabled(_get_id(check_pos)) and not units.has(check_pos):
+				var is_check_invalid = (astar.is_point_disabled(_get_id(check_pos)) and not allow_disabled) or units.has(check_pos)
+				if not is_check_invalid:
 					final_pos = check_pos
 					found = true
 					break
