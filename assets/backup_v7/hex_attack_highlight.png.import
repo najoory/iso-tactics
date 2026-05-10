@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bxqaega6vq4rg"
-path="res://.godot/imported/hex_attack_highlight.png-b67ea7618f5b58f17579e4b4b6c313d1.ctex"
+path="res://.godot/imported/hex_attack_highlight.png-101da6e4a29b99ee7e0f2350e02eaa62.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/hex_attack_highlight.png"
-dest_files=["res://.godot/imported/hex_attack_highlight.png-b67ea7618f5b58f17579e4b4b6c313d1.ctex"]
+source_file="res://assets/backup_v7/hex_attack_highlight.png"
+dest_files=["res://.godot/imported/hex_attack_highlight.png-101da6e4a29b99ee7e0f2350e02eaa62.ctex"]
 
 [params]
 

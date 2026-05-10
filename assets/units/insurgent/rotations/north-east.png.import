@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bsl3tewa3qjqe"
-path="res://.godot/imported/north-east.png-0ef36c148825ae7461abe6c870563a42.ctex"
+path="res://.godot/imported/north-east.png-d7f079a0604ba88d749ed262c43b0c8b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixellab/insurgent/rotations/north-east.png"
-dest_files=["res://.godot/imported/north-east.png-0ef36c148825ae7461abe6c870563a42.ctex"]
+source_file="res://assets/units/insurgent/rotations/north-east.png"
+dest_files=["res://.godot/imported/north-east.png-d7f079a0604ba88d749ed262c43b0c8b.ctex"]
 
 [params]
 

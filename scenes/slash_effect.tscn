@@ -1,10 +1,10 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/slash_effect.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/slash.png" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/kenney/slash.png" id="2_tex"]
 
 [node name="SlashEffect" type="Node2D"]
 script = ExtResource("1_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_texture")
+texture = ExtResource("2_tex")

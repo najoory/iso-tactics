@@ -37,6 +37,10 @@ func _ready():
 	_draw_procedural_map()
 	_spawn_units()
 	
+	# Enable Y-sorting for tall Kenney assets
+	tile_map.y_sort_enabled = true
+	units_container.y_sort_enabled = true
+	
 	execute_orders_button.pressed.connect(_execute_player_orders)
 	hold_position_button.toggled.connect(_on_hold_position_toggled)
 	restart_button.pressed.connect(_restart_game)

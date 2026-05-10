@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdqxmiv0qgnf6"
-path="res://.godot/imported/east.png-d537d5baf2f1a11e8b1e956aa14d989e.ctex"
+path="res://.godot/imported/east.png-c19fb535b3ec1eacb974a18120daac9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixellab/insurgent/rotations/east.png"
-dest_files=["res://.godot/imported/east.png-d537d5baf2f1a11e8b1e956aa14d989e.ctex"]
+source_file="res://assets/units/insurgent/rotations/east.png"
+dest_files=["res://.godot/imported/east.png-c19fb535b3ec1eacb974a18120daac9e.ctex"]
 
 [params]
 

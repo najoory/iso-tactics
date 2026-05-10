@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ciy3s1cb7wfdm"
-path="res://.godot/imported/hex_mountain.png-70937f66e7b1459e3ed9cac53a4eee3c.ctex"
+path="res://.godot/imported/hex_mountain.png-969e610267d5324b45263bc2d8799b98.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/hex_mountain.png"
-dest_files=["res://.godot/imported/hex_mountain.png-70937f66e7b1459e3ed9cac53a4eee3c.ctex"]
+source_file="res://assets/backup_v7/hex_mountain.png"
+dest_files=["res://.godot/imported/hex_mountain.png-969e610267d5324b45263bc2d8799b98.ctex"]
 
 [params]
 

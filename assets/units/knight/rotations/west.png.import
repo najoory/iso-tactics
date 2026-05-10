@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbh0bo14m05f3"
-path="res://.godot/imported/west.png-2958f41caa97b85d77290a7424fb29ca.ctex"
+path="res://.godot/imported/west.png-ffbcc0bd68f8229657bdbf5daca67ed3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixellab/knight/rotations/west.png"
-dest_files=["res://.godot/imported/west.png-2958f41caa97b85d77290a7424fb29ca.ctex"]
+source_file="res://assets/units/knight/rotations/west.png"
+dest_files=["res://.godot/imported/west.png-ffbcc0bd68f8229657bdbf5daca67ed3.ctex"]
 
 [params]
 

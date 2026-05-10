@@ -1,10 +1,9 @@
 [gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/unit.gd" id="1_unit"]
-[ext_resource type="Texture2D" path="res://assets/unit_placeholder.png" id="2_sprite"]
-[ext_resource type="Texture2D" path="res://assets/selection_circle.png" id="3_highlight"]
-[ext_resource type="Texture2D" path="res://assets/target_arrow.png" id="4_target_arrow"]
-[ext_resource type="Texture2D" path="res://assets/hold_icon.png" id="5_hold"]
+[ext_resource type="Texture2D" path="res://assets/kenney/selection_circle.png" id="2_highlight"]
+[ext_resource type="Texture2D" path="res://assets/kenney/target_arrow.png" id="3_target_arrow"]
+[ext_resource type="Texture2D" path="res://assets/kenney/hold_icon.png" id="4_hold"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
 bg_color = Color(0.2, 0.2, 0.2, 1)
@@ -20,18 +19,18 @@ script = ExtResource("1_unit")
 
 [node name="SelectionHighlight" type="Sprite2D" parent="."]
 visible = false
-texture = ExtResource("3_highlight")
+texture = ExtResource("2_highlight")
 
 [node name="TargetIndicator" type="Sprite2D" parent="."]
 visible = false
 position = Vector2(0, -70)
-texture = ExtResource("4_target_arrow")
+texture = ExtResource("3_target_arrow")
 
 [node name="HoldIndicator" type="Sprite2D" parent="."]
 visible = false
 position = Vector2(20, -16)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("5_hold")
+texture = ExtResource("4_hold")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -16)
@@ -39,7 +38,6 @@ position = Vector2(0, -16)
 [node name="Sprite2D" type="Sprite2D" parent="."]
 visible = false
 position = Vector2(0, -16)
-texture = ExtResource("2_sprite")
 
 [node name="BloodParticles" type="CPUParticles2D" parent="."]
 position = Vector2(0, -16)

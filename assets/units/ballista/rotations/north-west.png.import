@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5lq2ujampiau"
-path="res://.godot/imported/north-west.png-2e49e8f397857f07f0ea4da3354b4836.ctex"
+path="res://.godot/imported/north-west.png-1b41ea4ae4ab922071b74152a13f213b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixellab/ballista/rotations/north-west.png"
-dest_files=["res://.godot/imported/north-west.png-2e49e8f397857f07f0ea4da3354b4836.ctex"]
+source_file="res://assets/units/ballista/rotations/north-west.png"
+dest_files=["res://.godot/imported/north-west.png-1b41ea4ae4ab922071b74152a13f213b.ctex"]
 
 [params]
 

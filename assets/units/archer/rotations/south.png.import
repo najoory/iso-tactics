@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://elfwcox4pr3j"
-path="res://.godot/imported/south.png-b4b981e11816246aaefb50e97e2eb8b0.ctex"
+path="res://.godot/imported/south.png-91bfa28f3bd6eeada7955d2fe79eb570.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixellab/archer/rotations/south.png"
-dest_files=["res://.godot/imported/south.png-b4b981e11816246aaefb50e97e2eb8b0.ctex"]
+source_file="res://assets/units/archer/rotations/south.png"
+dest_files=["res://.godot/imported/south.png-91bfa28f3bd6eeada7955d2fe79eb570.ctex"]
 
 [params]
 

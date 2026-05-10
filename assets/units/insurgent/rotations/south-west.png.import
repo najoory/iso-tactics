@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cqpv2nkhx2jv5"
-path="res://.godot/imported/south-west.png-4b09a5e7204fba330e19df56de03d5f3.ctex"
+path="res://.godot/imported/south-west.png-35a41692e63a10159421b3432c0a0f69.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixellab/insurgent/rotations/south-west.png"
-dest_files=["res://.godot/imported/south-west.png-4b09a5e7204fba330e19df56de03d5f3.ctex"]
+source_file="res://assets/units/insurgent/rotations/south-west.png"
+dest_files=["res://.godot/imported/south-west.png-35a41692e63a10159421b3432c0a0f69.ctex"]
 
 [params]
 

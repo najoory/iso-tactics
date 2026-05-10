@@ -57,10 +57,6 @@ var projectile_scene = preload("res://scenes/projectile.tscn")
 var slash_scene = preload("res://scenes/slash_effect.tscn")
 var floating_label_scene = preload("res://scenes/floating_label.tscn")
 
-var sprite_knight = preload("res://assets/unit_knight.png")
-var sprite_archer = preload("res://assets/unit_archer.png")
-var sprite_ballista = preload("res://assets/unit_ballista.png")
-
 var is_moving: bool = false
 var current_direction: String = "south"
 var current_animation: String = "idle"
@@ -87,16 +83,6 @@ func _sync_from_data():
 	attack_damage = data.attack_damage
 	attack_cost = data.attack_cost
 	attack_range = data.attack_range
-	
-	if sprite:
-		match unit_class:
-			"Knight": sprite.texture = sprite_knight
-			"Archer": sprite.texture = sprite_archer
-			"Ballista": sprite.texture = sprite_ballista
-			"Insurgent": sprite.texture = sprite_ballista # Recycled old peasant sprite
-			"Shadow Assassin":
-				sprite.texture = sprite_knight
-				sprite.modulate = Color(0.1, 0.1, 0.1, 0.7) # Shadowy look
 
 	if animated_sprite:
 		var frames = SpriteFrames.new()
