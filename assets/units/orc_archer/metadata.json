@@ -1,0 +1,30 @@
+{
+  "character": {
+    "id": "0169ff0a-dbe0-462b-b670-c312bc63c3d3",
+    "name": "Orc-Archer-Monstrous-Green-Final",
+    "prompt": "monstrous muscular green orc archer with heavy jagged armor holding a crude longbow made of bone and dark wood, fantasy pixel art style, high contrast, 64px, monstrous features, tusks, green skin",
+    "size": {
+      "width": 84,
+      "height": 84
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-05-10T21:44:01.496943+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {}
+  },
+  "export_version": "2.0",
+  "export_date": "2026-05-10T21:49:59.925659"
+}
