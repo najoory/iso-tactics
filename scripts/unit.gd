@@ -214,7 +214,6 @@ func _die():
 	$Shadow.visible = false
 	selection_highlight.visible = false
 	target_indicator.visible = false
-	hold_indicator.visible = false
 	
 	# Fade out slightly but keep corpse
 	var tween = create_tween()
