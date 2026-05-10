@@ -91,9 +91,8 @@ func _sync_from_data():
 		# Identify folder with fallbacks
 		var folder_name = unit_class.to_lower().replace(" ", "_")
 		if unit_class == "Insurgent": folder_name = "insurgent"
-		elif unit_class == "Shadow Assassin": folder_name = "knight" # Fallback to knight visuals
+		elif unit_class == "Shadow Assassin": folder_name = "knight"
 		elif team == "Enemy":
-			# Try specific name, fallback to generic enemy archetypes
 			if unit_class.contains("Archer"): folder_name = "archer"
 			elif unit_class.contains("Ballista"): folder_name = "ballista"
 			else: folder_name = "knight"
@@ -110,6 +109,7 @@ func _sync_from_data():
 				if FileAccess.file_exists(global_path):
 					var img = Image.load_from_file(global_path)
 					if img: tex = ImageTexture.create_from_image(img)
+			
 			if tex:
 				frames.add_animation("idle_" + d)
 				frames.add_frame("idle_" + d, tex)
@@ -118,13 +118,20 @@ func _sync_from_data():
 				frames.add_animation("walk_" + d)
 				frames.add_frame("walk_" + d, tex)
 				has_frames = true
+		
 		if has_frames:
 			animated_sprite.sprite_frames = frames
 			animated_sprite.play("idle_" + current_direction)
 			if sprite: sprite.visible = false
 		else:
+			print("Warning: No sprites found for ", unit_name, " at ", base_path)
 			animated_sprite.sprite_frames = null
-			if sprite: sprite.visible = true
+			# Placeholder logic: create a basic box if no art found
+			if sprite:
+				sprite.visible = true
+				var img = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+				img.fill(Color.RED if team == "Enemy" else Color.BLUE)
+				sprite.texture = ImageTexture.create_from_image(img)
 
 func setup(pos: Vector2i, world_pos: Vector2):
 	grid_position = pos
@@ -151,11 +158,13 @@ func _spawn_floating_text(text: String, color: Color):
 	label.start(text, global_position + Vector2(-20, -40), color)
 
 func _flash_red():
-	if sprite:
-		var original_modulate = sprite.modulate
-		sprite.modulate = Color(2, 0.2, 0.2)
+	# Flash the animated sprite if it's active
+	var target_node = animated_sprite if (animated_sprite and animated_sprite.sprite_frames) else sprite
+	if target_node:
+		var original_modulate = target_node.modulate
+		target_node.modulate = Color(2, 0.2, 0.2)
 		await get_tree().create_timer(0.1).timeout
-		sprite.modulate = original_modulate
+		target_node.modulate = original_modulate
 
 func attack_animation(target_world_pos: Vector2):
 	var dir_vec = target_world_pos - global_position

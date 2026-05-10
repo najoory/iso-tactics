@@ -35,28 +35,33 @@ texture = SubResource("GradientTexture2D_shadow")
 
 [node name="SelectionHighlight" type="Sprite2D" parent="."]
 visible = false
-scale = Vector2(0.8, 0.8)
+z_index = 1
 texture = ExtResource("2_highlight")
 
 [node name="TargetIndicator" type="Sprite2D" parent="."]
 visible = false
+z_index = 2
 position = Vector2(0, -70)
 texture = ExtResource("3_target_arrow")
 
 [node name="HoldIndicator" type="Sprite2D" parent="."]
 visible = false
+z_index = 2
 position = Vector2(20, -16)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("4_hold")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
 position = Vector2(0, -16)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 visible = false
+z_index = 1
 position = Vector2(0, -16)
 
 [node name="BloodParticles" type="CPUParticles2D" parent="."]
+z_index = 2
 position = Vector2(0, -16)
 emitting = false
 amount = 12
@@ -71,6 +76,7 @@ scale_amount_max = 4.0
 color_ramp = SubResource("Gradient_blood")
 
 [node name="MoveParticles" type="CPUParticles2D" parent="."]
+z_index = 0
 position = Vector2(0, 8)
 emitting = false
 amount = 8
@@ -87,6 +93,7 @@ scale_amount_max = 3.0
 color = Color(0.8, 0.8, 0.8, 0.4)
 
 [node name="Control" type="Control" parent="."]
+z_index = 3
 layout_mode = 3
 anchors_preset = 0
 offset_top = -56.0

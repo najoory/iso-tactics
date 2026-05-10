@@ -325,6 +325,7 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData):
 	var unit = unit_scene.instantiate()
 	unit.data = data
 	units_container.add_child(unit)
+	print("Spawned unit: ", unit.unit_name, " at ", pos, " (Node name: ", unit.name, ")")
 	unit.setup(final_pos, tile_map.map_to_local(final_pos))
 	units[final_pos] = unit
 	units_by_id[data.unit_id] = unit
