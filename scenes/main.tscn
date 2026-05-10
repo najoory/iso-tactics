@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cwjtoylpp65bq"]
 
 [ext_resource type="Script" uid="uid://svxrkktn1lei" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="TileSet" path="res://resources/tileset.tres" id="2_tileset"]
+[ext_resource type="TileSet" uid="uid://4x2i1110xcm5" path="res://resources/tileset.tres" id="2_tileset"]
 [ext_resource type="Script" uid="uid://c12q442fajgw6" path="res://scripts/camera_controller.gd" id="3_camera"]
 
 [node name="Main" type="Node2D" unique_id=1332843576]

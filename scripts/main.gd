@@ -102,7 +102,7 @@ func _update_tooltip_and_tips():
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
 		tooltip_stats.text = "HP: " + str(unit.current_hp) + "/" + str(unit.max_hp) + "\nAP: " + str(unit.current_ap) + "/" + str(unit.max_ap)
-	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) in [Terrain.RUIN, Terrain.CORPSE]:
+	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) == Terrain.RUIN:
 		var terrain = grid_data[grid_pos]
 		tooltip.visible = true
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
@@ -110,7 +110,7 @@ func _update_tooltip_and_tips():
 		if terrain_hp.has(grid_pos):
 			tooltip_stats.text = "HP: " + str(terrain_hp[grid_pos])
 		else:
-			tooltip_stats.text = "Rubble / Remains"
+			tooltip_stats.text = "Rubble"
 	else:
 		tooltip.visible = false
 
@@ -281,19 +281,23 @@ func _spawn_units():
 	units.clear()
 	units_by_id.clear()
 	
-	# Spawn Player on the LEFT half
-	var spawn_x = 1
+	var stage = CampaignState.current_stage
+	var is_castle_stage = (stage % 5 == 0)
+	
+	# Spawn Player on the LEFT half (strictly scan LEFT)
+	var max_player_x = floor(grid_size.x / 2.0) - 1
+	if is_castle_stage:
+		max_player_x = floor(grid_size.x / 3.0) # Even further left during sieges
+	
 	for d in CampaignState.player_roster:
 		d.restore_stats()
 		d.active_order = {}
-		_create_unit_from_data(Vector2i(spawn_x, randi_range(2, 8)), d)
-		spawn_x += 1
+		_create_unit_from_data(Vector2i(randi_range(1, max_player_x), randi_range(2, 8)), d)
 	
 	CampaignState.save_game()
 	
-	var stage = CampaignState.current_stage
-	if stage % 5 == 0:
-		# BOSS STAGE: Spawn inside the castle interior
+	if is_castle_stage:
+		# BOSS STAGE: Defenders inside the castle
 		var castle_spots = []
 		for pos in grid_data:
 			if grid_data[pos] == Terrain.CASTLE:
@@ -307,10 +311,10 @@ func _spawn_units():
 		var spawn_pos = Vector2i(grid_size.x - 3, grid_size.y / 2)
 		if not castle_spots.is_empty():
 			spawn_pos = castle_spots.pick_random()
-		_create_unit_from_data(spawn_pos, boss_data, true) # Allow spawning on castle
+		_create_unit_from_data(spawn_pos, boss_data, true) # Force spawn inside
 		
 		# Add elite guards inside the castle too
-		for i in range(4): # 4 Guards
+		for i in range(4):
 			if not castle_spots.is_empty():
 				var guard_pos = castle_spots.pick_random()
 				_create_unit_from_data(guard_pos, _create_enemy_data("Orc Brute", "Elite Guard"), true)
@@ -361,7 +365,15 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 
 func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool = false):
 	var final_pos = pos
-	var is_spot_invalid = (astar.is_point_disabled(_get_id(final_pos)) and not allow_disabled) or units.has(final_pos)
+	
+	# Stricter validation for players: Never spawn on buildings/castle
+	var is_terrain_forbidden = false
+	if data.team == "Player":
+		var t = grid_data.get(final_pos, Terrain.GRASS)
+		if t in [Terrain.CASTLE, Terrain.HOUSE, Terrain.WALL, Terrain.MOUNTAIN, Terrain.WATER]:
+			is_terrain_forbidden = true
+			
+	var is_spot_invalid = is_terrain_forbidden or (astar.is_point_disabled(_get_id(final_pos)) and not allow_disabled) or units.has(final_pos)
 	
 	if is_spot_invalid:
 		# Restriction: Scan only the team's half
@@ -376,7 +388,14 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 		for y in range(grid_size.y):
 			for x in range(start_x, end_x + 1):
 				var check_pos = Vector2i(x, y)
-				var is_check_invalid = (astar.is_point_disabled(_get_id(check_pos)) and not allow_disabled) or units.has(check_pos)
+				
+				var check_forbidden = false
+				if data.team == "Player":
+					var ct = grid_data.get(check_pos, Terrain.GRASS)
+					if ct in [Terrain.CASTLE, Terrain.HOUSE, Terrain.WALL, Terrain.MOUNTAIN, Terrain.WATER]:
+						check_forbidden = true
+						
+				var is_check_invalid = check_forbidden or (astar.is_point_disabled(_get_id(check_pos)) and not allow_disabled) or units.has(check_pos)
 				if not is_check_invalid:
 					final_pos = check_pos
 					found = true
