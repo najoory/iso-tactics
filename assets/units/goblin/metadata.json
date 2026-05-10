@@ -1,0 +1,30 @@
+{
+  "character": {
+    "id": "a61934d4-5576-4b1d-95d3-e2666387a347",
+    "name": "Goblin-Final",
+    "prompt": "small green goblin in tattered rags holding a rusty dagger, fantasy pixel art, high contrast, 32px",
+    "size": {
+      "width": 68,
+      "height": 68
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-05-10T18:03:32.333684+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {}
+  },
+  "export_version": "2.0",
+  "export_date": "2026-05-10T18:05:35.510954"
+}
