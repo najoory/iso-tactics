@@ -57,7 +57,7 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -350.0
+offset_left = -200.0
 offset_top = -60.0
 offset_right = -20.0
 offset_bottom = -20.0
@@ -69,11 +69,6 @@ alignment = 2
 [node name="ExecuteOrders" type="Button" parent="CanvasLayer/UI/ActionButtons" unique_id=131794840]
 layout_mode = 2
 text = "EXECUTE ORDERS"
-
-[node name="HoldPosition" type="Button" parent="CanvasLayer/UI/ActionButtons" unique_id=1873652886]
-layout_mode = 2
-toggle_mode = true
-text = "HOLD POSITION"
 
 [node name="HelpLabel" type="Label" parent="CanvasLayer/UI" unique_id=1742204212]
 layout_mode = 1

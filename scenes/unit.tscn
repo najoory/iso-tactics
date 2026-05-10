@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://scripts/unit.gd" id="1_unit"]
 [ext_resource type="Texture2D" path="res://assets/kenney/selection_circle.png" id="2_highlight"]
 [ext_resource type="Texture2D" path="res://assets/kenney/target_arrow.png" id="3_target_arrow"]
-[ext_resource type="Texture2D" path="res://assets/kenney/hold_icon.png" id="4_hold"]
 
 [sub_resource type="Gradient" id="Gradient_shadow"]
 offsets = PackedFloat32Array(0, 0.7)
@@ -43,13 +42,6 @@ visible = false
 z_index = 3
 position = Vector2(0, -70)
 texture = ExtResource("3_target_arrow")
-
-[node name="HoldIndicator" type="Sprite2D" parent="."]
-visible = false
-z_index = 3
-position = Vector2(20, -16)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("4_hold")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 2

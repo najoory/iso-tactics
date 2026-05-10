@@ -47,7 +47,6 @@ signal movement_finished
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var selection_highlight: Sprite2D = $SelectionHighlight
 @onready var target_indicator: Sprite2D = $TargetIndicator
-@onready var hold_indicator: Sprite2D = $HoldIndicator
 @onready var hp_bar: ProgressBar = $Control/HPBar
 @onready var ap_label: Label = $Control/APLabel
 @onready var level_label: Label = $Control/LevelLabel
@@ -133,6 +132,15 @@ func setup(pos: Vector2i, world_pos: Vector2):
 
 func reset_ap():
 	self.current_ap = max_ap
+
+func get_current_defense() -> int:
+	if not data.active_order.is_empty(): return 0
+	
+	if unit_class in ["Knight", "Orc Brute", "Orc Overlord", "Insurgent"]:
+		return 2
+	if unit_class in ["Archer", "Shadow Assassin", "Insurgent Archer"]:
+		return 1
+	return 0
 
 func take_damage(amount: int):
 	self.current_hp = max(0, current_hp - amount)
@@ -274,9 +282,6 @@ func _update_visuals():
 	if target_indicator:
 		target_indicator.visible = is_targeted
 		
-	if hold_indicator:
-		hold_indicator.visible = data.hold_position if data else false
-	
 	hp_bar.max_value = max_hp
 	hp_bar.value = current_hp
 	ap_label.text = "AP: " + str(current_ap)

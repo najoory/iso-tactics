@@ -6,7 +6,6 @@ extends Node2D
 @onready var units_container: Node2D = $Units
 @onready var turn_label: Label = $CanvasLayer/UI/TurnLabel
 @onready var execute_orders_button: Button = $CanvasLayer/UI/ActionButtons/ExecuteOrders
-@onready var hold_position_button: Button = $CanvasLayer/UI/ActionButtons/HoldPosition
 @onready var tooltip: Panel = $CanvasLayer/UI/Tooltip
 @onready var tooltip_name: Label = $CanvasLayer/UI/Tooltip/VBox/Name
 @onready var tooltip_stats: Label = $CanvasLayer/UI/Tooltip/VBox/Stats
@@ -32,13 +31,12 @@ var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
 func _ready():
-	print("Iteration 8 Professional Art Update Initialized!")
+	print("Tactical Refinement Initialized: Automatic Guard system online.")
 	_setup_astar()
 	_draw_procedural_map()
 	_spawn_units()
 	
 	execute_orders_button.pressed.connect(_execute_player_orders)
-	hold_position_button.toggled.connect(_on_hold_position_toggled)
 	restart_button.pressed.connect(_restart_game)
 	
 	$CanvasLayer/GameOver/Rewards/AddKnight.pressed.connect(_on_reward_selected.bind("knight"))
@@ -73,14 +71,6 @@ func _restart_game():
 	CampaignState.reset_campaign()
 	get_tree().reload_current_scene()
 
-func _on_hold_position_toggled(toggled: bool):
-	if selected_unit and is_instance_valid(selected_unit):
-		selected_unit.data.hold_position = toggled
-		if toggled:
-			selected_unit.data.active_order = {}
-		selected_unit._update_visuals()
-		_draw_all_order_indicators()
-
 func _process(_delta):
 	_update_tooltip_and_tips()
 
@@ -101,7 +91,8 @@ func _update_tooltip_and_tips():
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
 		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
 		
-		var stats_text = "HP: %d/%d | AP: %d/%d\nDamage: %d" % [unit.current_hp, unit.max_hp, unit.current_ap, unit.max_ap, unit.attack_damage]
+		var defense = unit.get_current_defense()
+		var stats_text = "HP: %d/%d | AP: %d/%d\nDamage: %d | Defense: %d" % [unit.current_hp, unit.max_hp, unit.current_ap, unit.max_ap, unit.attack_damage, defense]
 		if unit.team == "Player":
 			stats_text += " | XP: %d/%d" % [unit.data.current_exp, unit.max_hp]
 		
@@ -134,7 +125,9 @@ func _update_tooltip_and_tips():
 			
 			if dist <= selected_unit.attack_range and has_los:
 				var damage = selected_unit.attack_damage
-				if target_destructible != null and selected_unit.unit_class == "Ballista":
+				if target_enemy:
+					damage = max(1, damage - target_enemy.get_current_defense())
+				elif target_destructible != null and selected_unit.unit_class == "Ballista":
 					if target_destructible in [Terrain.HOUSE, Terrain.WALL, Terrain.CASTLE]: damage *= 2
 				
 				var tip_text = "-" + str(cost) + " AP | -" + str(damage) + " HP"
@@ -169,17 +162,9 @@ func _update_ui():
 	if current_turn == Turn.PLAYER:
 		turn_label.text = "PLAYER TURN (Stage " + str(CampaignState.current_stage) + ")"
 		execute_orders_button.disabled = false
-		if selected_unit and is_instance_valid(selected_unit):
-			hold_position_button.disabled = false
-			hold_position_button.set_block_signals(true)
-			hold_position_button.button_pressed = selected_unit.data.hold_position
-			hold_position_button.set_block_signals(false)
-		else:
-			hold_position_button.disabled = true
 	else:
 		turn_label.text = "ENEMY TURN"
 		execute_orders_button.disabled = true
-		hold_position_button.disabled = true
 
 func _setup_astar():
 	astar = AStar2D.new()
@@ -501,7 +486,6 @@ func _draw_all_order_indicators():
 		unit.is_targeted = false
 		if unit.team == "Player":
 			var order = unit.data.active_order
-			if unit.data.hold_position: continue
 			if not order.is_empty():
 				var line = Line2D.new()
 				line.width = 3.0
@@ -539,7 +523,10 @@ func _execute_player_orders():
 	_switch_turn()
 
 func _process_unit_order(unit: Unit):
-	if unit.data.hold_position:
+	var order = unit.data.active_order
+	
+	# Automatic Guard Behavior if no active order
+	if order.is_empty():
 		var has_attacked = false
 		while is_instance_valid(unit) and unit.current_ap >= unit.attack_cost:
 			var closest_enemy = _find_closest_enemy_in_range(unit)
@@ -551,8 +538,7 @@ func _process_unit_order(unit: Unit):
 			else: break
 		return
 
-	var order = unit.data.active_order
-	if order.is_empty(): return
+	# Execute explicit order
 	$Camera2D.position = unit.position
 	
 	if order.type == "attack":
@@ -615,7 +601,7 @@ func _find_closest_enemy_in_range(unit: Unit) -> Unit:
 	var closest = null
 	var min_dist = 9999
 	for other in units.values():
-		if other.team == "Enemy":
+		if other.team != unit.team: # Support Player and Enemy guard behavior
 			var dist = _get_hex_distance(unit.grid_position, other.grid_position)
 			if dist <= unit.attack_range and dist < min_dist:
 				if _is_within_attack_range(unit, other.grid_position):
@@ -679,6 +665,9 @@ func _attack_unit(attacker: Unit, defender: Unit):
 	var damage = attacker.attack_damage
 	if attacker.attack_range > 1 and _get_hex_distance(attacker.grid_position, defender.grid_position) == 1:
 		damage = ceili(damage * 0.5)
+	
+	# Apply Defense before taking damage
+	damage = max(1, damage - defender.get_current_defense())
 	
 	# Grant XP and check for immediate level-up
 	if attacker.team == "Player":
