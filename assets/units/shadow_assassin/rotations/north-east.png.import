@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://k1gwanols3ws"
-path="res://.godot/imported/west.png-a061593ba6fd1c7877ecbfaa7314e1e9.ctex"
+uid="uid://cctbc45h1vbq3"
+path="res://.godot/imported/north-east.png-9a2f96f92b5fd44ac1b34553be70a939.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/units/insurgent/rotations/west.png"
-dest_files=["res://.godot/imported/west.png-a061593ba6fd1c7877ecbfaa7314e1e9.ctex"]
+source_file="res://assets/units/shadow_assassin/rotations/north-east.png"
+dest_files=["res://.godot/imported/north-east.png-9a2f96f92b5fd44ac1b34553be70a939.ctex"]
 
 [params]
 

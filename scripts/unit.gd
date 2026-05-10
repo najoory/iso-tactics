@@ -91,11 +91,17 @@ func _sync_from_data():
 		# Identify folder with fallbacks
 		var folder_name = unit_class.to_lower().replace(" ", "_")
 		if unit_class == "Insurgent": folder_name = "insurgent"
-		elif unit_class == "Shadow Assassin": folder_name = "knight"
+		elif unit_class == "Shadow Assassin": folder_name = "shadow_assassin"
 		elif team == "Enemy":
-			if unit_class.contains("Archer"): folder_name = "archer"
-			elif unit_class.contains("Ballista"): folder_name = "ballista"
-			else: folder_name = "knight"
+			var low_class = unit_class.to_lower()
+			if "goblin" in low_class: folder_name = "goblin"
+			elif "brute" in low_class: folder_name = "orc_brute"
+			elif "overlord" in low_class: folder_name = "orc_overlord"
+			elif "insurgent" in low_class: folder_name = "insurgent"
+			elif "assassin" in low_class: folder_name = "shadow_assassin"
+			elif "archer" in low_class: folder_name = "orc_archer"
+			elif "ballista" in low_class: folder_name = "orc_ballista"
+			else: folder_name = "knight" # Fallback for unknown enemies
 		
 		var base_path = "res://assets/units/" + folder_name + "/rotations/"
 		var has_frames = false
@@ -126,7 +132,6 @@ func _sync_from_data():
 		else:
 			print("Warning: No sprites found for ", unit_name, " at ", base_path)
 			animated_sprite.sprite_frames = null
-			# Placeholder logic: create a basic box if no art found
 			if sprite:
 				sprite.visible = true
 				var img = Image.create(32, 32, false, Image.FORMAT_RGBA8)
@@ -158,7 +163,6 @@ func _spawn_floating_text(text: String, color: Color):
 	label.start(text, global_position + Vector2(-20, -40), color)
 
 func _flash_red():
-	# Flash the animated sprite if it's active
 	var target_node = animated_sprite if (animated_sprite and animated_sprite.sprite_frames) else sprite
 	if target_node:
 		var original_modulate = target_node.modulate

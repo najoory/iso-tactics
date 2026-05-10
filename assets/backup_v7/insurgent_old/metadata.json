@@ -1,8 +1,8 @@
 {
   "character": {
-    "id": "a2c2ce02-af05-4433-a975-858cdd381855",
-    "name": "Orc-Brute-Final",
-    "prompt": "large muscular orc in heavy leather armor holding a massive iron club, fantasy pixel art, 64px",
+    "id": "254d1b0f-2e3c-4e53-9f6c-83fdca03b4b6",
+    "name": "Insurgent-Final",
+    "prompt": "renegade human insurgent in mismatched rusty armor holding a jagged sword, fantasy pixel art, 48px",
     "size": {
       "width": 68,
       "height": 68
@@ -10,7 +10,7 @@
     "template_id": "mannequin",
     "directions": 8,
     "view": "low top-down",
-    "created_at": "2026-05-10T18:03:32.315865+00:00"
+    "created_at": "2026-05-10T18:03:32.454282+00:00"
   },
   "frames": {
     "rotations": {
@@ -26,5 +26,5 @@
     "animations": {}
   },
   "export_version": "2.0",
-  "export_date": "2026-05-10T18:05:13.993872"
+  "export_date": "2026-05-10T18:04:50.567959"
 }
