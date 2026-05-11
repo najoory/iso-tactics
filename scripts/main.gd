@@ -407,6 +407,9 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 	units[final_pos] = unit
 	units_by_id[data.unit_id] = unit
 	astar.set_point_disabled(_get_id(final_pos), true)
+	
+	# INITIALIZE DEFENSE: Ensure units have accurate starting armor
+	unit.update_saved_defense()
 
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.pressed:

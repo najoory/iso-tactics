@@ -85,32 +85,30 @@ Left Click: Select/Move/Melee
 Right Click: Set Attack Order
 Space: End Turn"
 
-[node name="Tooltip" type="Panel" parent="CanvasLayer/UI" unique_id=623825742]
+[node name="Tooltip" type="PanelContainer" parent="CanvasLayer/UI" unique_id=623825742]
 visible = false
 layout_mode = 0
-offset_right = 140.0
-offset_bottom = 80.0
+offset_right = 200.0
+offset_bottom = 70.0
 mouse_filter = 2
 
-[node name="VBox" type="VBoxContainer" parent="CanvasLayer/UI/Tooltip" unique_id=788556470]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 5.0
-offset_top = 5.0
-offset_right = -5.0
-offset_bottom = -5.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Margin" type="MarginContainer" parent="CanvasLayer/UI/Tooltip"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/UI/Tooltip/Margin" unique_id=788556470]
+layout_mode = 2
 mouse_filter = 2
 
-[node name="Name" type="Label" parent="CanvasLayer/UI/Tooltip/VBox" unique_id=1762852978]
+[node name="Name" type="Label" parent="CanvasLayer/UI/Tooltip/Margin/VBox" unique_id=1762852978]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Soldier"
 
-[node name="Stats" type="Label" parent="CanvasLayer/UI/Tooltip/VBox" unique_id=881156225]
+[node name="Stats" type="Label" parent="CanvasLayer/UI/Tooltip/Margin/VBox" unique_id=881156225]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "HP: 10/10
