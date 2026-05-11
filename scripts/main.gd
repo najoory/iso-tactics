@@ -519,6 +519,11 @@ func _execute_player_orders():
 		if is_instance_valid(unit):
 			await _process_unit_order(unit)
 			await get_tree().create_timer(0.1).timeout
+	
+	# Finalize defense for all units based on remaining AP
+	for unit in units.values():
+		unit.update_saved_defense()
+		
 	_draw_all_order_indicators()
 	_switch_turn()
 
@@ -767,48 +772,93 @@ func _handle_enemy_turn():
 		if is_instance_valid(enemy):
 			await _ai_act(enemy)
 			await get_tree().create_timer(0.4).timeout
+	
+	# Finalize defense for all enemies
+	for unit in units.values():
+		unit.update_saved_defense()
+		
 	_reset_units_ap("Enemy")
 	_switch_turn()
 
 func _ai_act(enemy: Unit):
-	var target = _find_closest_player(enemy)
+	var target = _find_best_target(enemy)
 	if not target: return
+	
+	var dist = _get_hex_distance(enemy.grid_position, target.grid_position)
+	var can_hit_now = _is_within_attack_range(enemy, target.grid_position)
+	
+	# 1. Ranged Archetype Tactics (Archer, Ballista)
+	if enemy.attack_range > 1:
+		if can_hit_now:
+			# KITING: If already in range, stay still to gain AP Defense
+			await _attack_unit(enemy, target)
+			return
+		else:
+			# Move to MAX range instead of closest possible
+			var best_kiting_hex = _find_best_attack_hex(enemy, target.grid_position)
+			if best_kiting_hex != Vector2i(-1, -1):
+				await _move_towards_grid(enemy, best_kiting_hex)
+				if _is_within_attack_range(enemy, target.grid_position):
+					await _attack_unit(enemy, target)
+			return
+
+	# 2. Boss Logic (Orc Overlord)
+	if enemy.unit_class == "Orc Overlord":
+		var current_t = grid_data.get(enemy.grid_position, Terrain.GRASS)
+		if current_t == Terrain.CASTLE and dist > 1:
+			# Defensive Posture: Refuse to leave the castle, save AP for massive defense
+			return 
+
+	# 3. Strategic Patience for Melee
+	if dist > (enemy.current_ap + 1):
+		# Player is too far to reach this turn. 
+		# Instead of walking into the open, hold position for defense bonus.
+		return
+
+	# 4. Standard Aggressive Move (Shadow Assassin, Brute, etc.)
+	if not can_hit_now:
+		var path = _get_path(enemy.grid_position, target.grid_position)
+		if path.size() > 1:
+			var best_step = _find_best_attack_hex(enemy, target.grid_position)
+			if best_step != Vector2i(-1, -1):
+				await _move_towards_grid(enemy, best_step)
+	
 	if _is_within_attack_range(enemy, target.grid_position):
 		await _attack_unit(enemy, target)
-		return
-	var path = _get_path(enemy.grid_position, target.grid_position)
-	if path.size() > 1:
-		var move_path: Array[Vector2i] = [enemy.grid_position]
-		var total_cost = 0
-		for i in range(1, path.size()):
-			var step_pos = path[i]
-			var step_cost = int(astar.get_point_weight_scale(_get_id(step_pos)))
-			if total_cost + step_cost <= enemy.current_ap:
-				move_path.append(step_pos)
-				total_cost += step_cost
-				if _is_within_attack_range_from(enemy, step_pos, target.grid_position): break
-			else: break
-		if move_path.size() > 1:
-			var world_path: Array[Vector2] = []
-			for p in move_path: world_path.append(tile_map.map_to_local(p))
-			astar.set_point_disabled(_get_id(enemy.grid_position), false)
-			units.erase(enemy.grid_position)
-			enemy.current_ap -= total_cost
-			await enemy.move_along_path_raw(world_path, move_path)
-			units[enemy.grid_position] = enemy
-			astar.set_point_disabled(_get_id(enemy.grid_position), true)
-	if _is_within_attack_range(enemy, target.grid_position): await _attack_unit(enemy, target)
 
-func _find_closest_player(enemy: Unit) -> Unit:
-	var closest = null
-	var min_dist = 9999
+func _find_best_target(enemy: Unit) -> Unit:
+	var best_target = null
+	var max_score = -9999
+	
 	for unit in units.values():
 		if unit.team == "Player":
-			var dist = _get_hex_distance(enemy.grid_position, unit.grid_position)
-			if dist < min_dist:
-				min_dist = dist
-				closest = unit
-	return closest
+			var score = _score_target(enemy, unit)
+			if score > max_score:
+				max_score = score
+				best_target = unit
+	return best_target
+
+func _score_target(enemy: Unit, player: Unit) -> float:
+	var score = 100.0
+	var dist = _get_hex_distance(enemy.grid_position, player.grid_position)
+	
+	# Proximity is good
+	score -= dist * 5.0
+	
+	# Target Low HP (Finish them off!)
+	if player.current_hp < enemy.attack_damage:
+		score += 50.0
+	score += (1.0 - (player.current_hp / float(player.max_hp))) * 30.0
+	
+	# Archetype: Assassins hate Archers/Ballistas
+	if enemy.unit_class == "Shadow Assassin":
+		if player.unit_class in ["Archer", "Ballista"]:
+			score += 100.0
+			
+	# Penalty for high defense targets
+	score -= player.get_current_defense() * 10.0
+	
+	return score
 
 func _select_unit(unit: Unit):
 	_deselect_unit()

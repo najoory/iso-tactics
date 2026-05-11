@@ -134,13 +134,19 @@ func reset_ap():
 	self.current_ap = max_ap
 
 func get_current_defense() -> int:
-	if not data.active_order.is_empty(): return 0
+	if not data: return 0
+	return data.saved_defense
+
+func update_saved_defense():
+	if not data: return
+	var def = floor(current_ap / 2.0)
 	
-	if unit_class in ["Knight", "Orc Brute", "Orc Overlord", "Insurgent"]:
-		return 2
-	if unit_class in ["Archer", "Shadow Assassin", "Insurgent Archer"]:
-		return 1
-	return 0
+	# Melee Brace: Knight, Brute, Overlord, Insurgent
+	var is_melee = unit_class in ["Knight", "Orc Brute", "Orc Overlord", "Insurgent"]
+	if is_melee and data.active_order.is_empty():
+		def += 2
+		
+	data.saved_defense = int(def)
 
 func take_damage(amount: int):
 	self.current_hp = max(0, current_hp - amount)
