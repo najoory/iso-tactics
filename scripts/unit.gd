@@ -63,6 +63,13 @@ var current_direction: String = "south"
 var current_animation: String = "idle"
 var is_dead: bool = false
 
+# Immersive Features
+var hold_position_turns: int = 0
+var last_chatter_turn: int = -1
+
+# Cached UI reference for performance
+static var ui_container_cache: Node = null
+
 # Optimization: Cache SpriteFrames by sprite folder
 static var frames_cache: Dictionary = {}
 
@@ -137,8 +144,26 @@ func setup(pos: Vector2i, world_pos: Vector2):
 	grid_position = pos
 	position = world_pos
 
-func reset_ap():
+func reset_ap(dist_to_enemy: int = 999):
 	self.current_ap = max_ap
+	
+	# Turn-based chatter logic
+	var turn = CampaignState.current_stage # Use stage as a rough turn proxy or increment a turn counter
+	# Actually, Main.gd should track a battle turn counter, but for now we'll just use a local toggle
+	
+	var config = CampaignState.game_config.get("chatter", {})
+	
+	# Increment idle tracker if no orders (active_order is usually cleared after execution)
+	if data.active_order.is_empty():
+		hold_position_turns += 1
+	else:
+		hold_position_turns = 0
+		
+	# Scenarios
+	if dist_to_enemy <= config.get("frontline_distance", 3):
+		try_shout("frontline")
+	elif hold_position_turns >= config.get("idle_threshold_turns", 2):
+		try_shout("idle")
 
 func get_current_defense() -> int:
 	if not data: return 0
@@ -159,6 +184,12 @@ func take_damage(amount: int):
 	self.current_hp = max(0, current_hp - amount)
 	_spawn_floating_text("-" + str(amount) + " HP", Color.RED)
 	_flash_red()
+	
+	# Hard hit chatter check
+	var ratio = CampaignState.game_config.get("chatter", {}).get("hard_hit_threshold_ratio", 0.3)
+	if amount >= max_hp * ratio:
+		try_shout("hard_hit")
+	
 	if blood_particles:
 		blood_particles.emitting = true
 	var camera = get_viewport().get_camera_2d()
@@ -185,6 +216,8 @@ func attack_animation(target_world_pos: Vector2):
 	current_direction = get_direction_string(dir_vec)
 	current_animation = "attack"
 	_update_visuals()
+	
+	try_shout("attack")
 
 	if attack_range > 1:
 		var projectile = projectile_scene.instantiate()
@@ -239,6 +272,7 @@ func move_along_path_raw(path: Array[Vector2], grid_path: Array[Vector2i]):
 	if path.is_empty() or is_dead: return
 	is_moving = true
 	current_animation = "walk"
+	hold_position_turns = 0
 	
 	if unit_class == "Shadow Assassin":
 		var final_world = path[-1]
@@ -325,3 +359,54 @@ func _update_visuals():
 					sprite.modulate = Color(1, 0.7, 0.7)
 			else:
 				sprite.modulate = Color(1, 1, 1)
+
+func try_shout(scenario: String, force_prob: float = -1.0):
+	if is_dead or not data or data.chatter_data.is_empty(): return
+	if not data.chatter_data.has(scenario): return
+	
+	var prob = CampaignState.game_config.get("chatter", {}).get("probability_per_turn", 0.25)
+	if scenario == "attack":
+		prob = CampaignState.game_config.get("chatter", {}).get("probability_per_attack", 0.6)
+	elif scenario == "hard_hit":
+		prob = 1.0 # Always shout when hit hard
+	
+	if force_prob >= 0: prob = force_prob
+	
+	if randf() > prob: return
+	
+	var phrases = data.chatter_data[scenario]
+	if phrases.is_empty(): return
+	
+	var text = phrases.pick_random()
+	var color = Color.WHITE
+	match scenario:
+		"frontline": color = Color.ORANGE
+		"attack": color = Color.ORANGE_RED
+		"idle": color = Color.LAWN_GREEN
+		"hard_hit": color = Color(1.0, 0.2, 0.2) # Bold vibrant red
+	
+	_spawn_chatter(text, color)
+
+func _spawn_chatter(text: String, color: Color):
+	var label = floating_label_scene.instantiate()
+	
+	# Add to CanvasLayer/UI for guaranteed visibility
+	if not is_instance_valid(ui_container_cache):
+		ui_container_cache = get_tree().root.find_child("UI", true, false)
+	
+	if ui_container_cache:
+		ui_container_cache.add_child(label)
+		
+		# Project world position to screen position
+		var screen_pos = get_viewport_transform() * global_position
+		
+		# Random offset
+		var offset = Vector2(randf_range(-40, 40), randf_range(-80, -60))
+		var duration = CampaignState.game_config.get("chatter", {}).get("display_duration_seconds", 3.0)
+		label.start(text, screen_pos + offset, color, duration)
+	else:
+		# Fallback to parent if UI not found
+		get_parent().add_child(label)
+		var offset = Vector2(randf_range(-30, 30), randf_range(-60, -40))
+		var duration = CampaignState.game_config.get("chatter", {}).get("display_duration_seconds", 3.0)
+		label.start(text, global_position + offset, color, duration)

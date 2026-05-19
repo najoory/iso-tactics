@@ -1,0 +1,10 @@
+{
+  "chatter": {
+    "probability_per_turn": 0.4,
+    "probability_per_attack": 0.7,
+    "idle_threshold_turns": 2,
+    "frontline_distance": 3,
+    "hard_hit_threshold_ratio": 0.3,
+    "display_duration_seconds": 2.5
+  }
+}

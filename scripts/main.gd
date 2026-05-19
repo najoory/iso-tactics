@@ -111,6 +111,8 @@ void fragment() {
 	_update_ui()
 	_center_camera()
 	
+	_reset_units_ap("Player")
+	
 	# Initial turn animation
 	call_deferred("animate_turn_transition", "PLAYER TURN")
 	
@@ -389,24 +391,27 @@ func _setup_battlefield_hud():
 	victory_chance_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	victory_panel.add_child(victory_chance_label)
 
-	# 3. Turn Banner (Center)
+	# 3. Turn Banner (Top Center)
 	turn_banner = PanelContainer.new()
 	var banner_sb = sb.duplicate()
-	banner_sb.modulate_color = Color(1.1, 1.1, 1.1, 0.95)
+	# Semi-transparent battlefield green
+	banner_sb.modulate_color = Color(0.2, 0.4, 0.2, 0.7)
 	turn_banner.add_theme_stylebox_override("panel", banner_sb)
 	$CanvasLayer/UI.add_child(turn_banner)
-	turn_banner.set_anchors_preset(Control.PRESET_CENTER)
-	turn_banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	turn_banner.grow_vertical = Control.GROW_DIRECTION_BOTH
-	turn_banner.custom_minimum_size = Vector2(400, 100)
-	turn_banner.pivot_offset = Vector2(200, 50) # Half of custom_min_size
+	turn_banner.set_anchors_preset(Control.PRESET_TOP_CENTER)
+	turn_banner.offset_left = -250
+	turn_banner.offset_right = 250
+	turn_banner.offset_top = 100
+	turn_banner.offset_bottom = 180
+	
+	turn_banner.pivot_offset = Vector2(250, 40)
 	turn_banner.modulate.a = 0
 	turn_banner.scale = Vector2(0.5, 0.5)
 	turn_banner.visible = false
 	
 	turn_banner_label = Label.new()
-	turn_banner_label.add_theme_color_override("font_color", Color.BLACK)
-	turn_banner_label.add_theme_font_size_override("font_size", 42)
+	turn_banner_label.add_theme_color_override("font_color", Color(0.9, 1.0, 0.9)) # Very light green/white
+	turn_banner_label.add_theme_font_size_override("font_size", 36)
 	turn_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	turn_banner.add_child(turn_banner_label)
 	
@@ -416,6 +421,9 @@ func _setup_battlefield_hud():
 func animate_turn_transition(text: String):
 	turn_banner_label.text = text
 	turn_banner.visible = true
+	turn_banner.modulate.a = 0.0
+	turn_banner.scale = Vector2(0.5, 0.5)
+	
 	var tween = create_tween().set_parallel(false)
 	
 	# Fade in and scale up
@@ -809,8 +817,10 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		data.attack_cost = stats.attack_cost
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
-		
+		data.chatter_data = stats.get("chatter", {})
+
 		if u_class.contains("Archer"): data.unit_class = "Archer"
+
 		elif u_class.contains("Ballista"): data.unit_class = "Ballista"
 		elif u_class.contains("Insurgent Archer"): data.unit_class = "Insurgent Archer"
 		elif u_class.contains("Insurgent"): data.unit_class = "Insurgent"
@@ -1233,10 +1243,23 @@ func _switch_turn():
 	_draw_all_order_indicators()
 
 func _reset_units_ap(team_name: String):
+	# Pre-collect enemy positions to optimize distance checks
+	var enemies = []
+	for u in units.values():
+		if u.team != team_name and not u.is_dead:
+			enemies.append(u)
+			
 	for unit in units.values():
-		if unit.team == team_name: unit.reset_ap()
+		if unit.team == team_name:
+			# Find distance to nearest enemy for chatter logic
+			var min_dist = 999
+			for enemy in enemies:
+				var d = _get_hex_distance(unit.grid_position, enemy.grid_position)
+				if d < min_dist: min_dist = d
+			unit.reset_ap(min_dist)
 
 func _handle_enemy_turn():
+	_reset_units_ap("Enemy")
 	var enemy_units = []
 	for unit in units.values():
 		if unit.team == "Enemy": enemy_units.append(unit)

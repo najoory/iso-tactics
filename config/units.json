@@ -1,94 +1,105 @@
 {
   "Player": {
 	"Knight": {
-	  "max_hp": 12,
-	  "max_ap": 5,
-	  "attack_damage": 4,
-	  "attack_cost": 2,
-	  "attack_range": 1,
-	  "sprite_folder": "knight"
+	  "max_hp": 12, "max_ap": 5, "attack_damage": 4, "attack_cost": 2, "attack_range": 1, "sprite_folder": "knight",
+	  "chatter": {
+		"frontline": ["Mind the cape, peasants!", "This armor cost more than your village.", "Try not to bleed on my boots.", "A bit drafty out here, isn't it?", "Stand firm, lower classmen!", "Defend the crown, and my reputation!", "Is that smell you, or the enemy?", "Chivalry isn't dead, but you might be.", "Stay behind me, I'm expensive.", "Don't let them touch the gold leaf."],
+		"attack": ["FOR THE KING!", "TASTE MY STEEL!", "HAVE AT THEE!", "EN GARDE, FILTH!", "RETIRE, VILLAIN!", "BY THE LIGHT!", "DEATH BEFORE DISHONOR!", "PARRY THIS!", "KNEEL!", "JUSTICE SERVED!"],
+		"idle": ["Is this it? I'm missing tea.", "My horse would be bored too.", "Polish check! Still shining.", "The peasants are doing all the work.", "Waiting is so... middle class.", "I should have worn the lighter helm.", "Staring contest? I'm winning.", "Someone fetch me a chair.", "A hero's work is 90% standing.", "Is there a tavern nearby?"],
+		"hard_hit": ["My armor! It's dented!", "How dare you strike a noble!", "Medic! Or a tailor!", "This is highly irregular!", "I shall have your head for this!", "A flesh wound! Mostly!", "Help! I'm being oppressed!", "You'll hear from my lawyer!", "My father will hear about this!", "Tis but a scratch... oh wait."]
+	  }
 	},
 	"Archer": {
-	  "max_hp": 8,
-	  "max_ap": 5,
-	  "attack_damage": 3,
-	  "attack_cost": 2,
-	  "attack_range": 3,
-	  "sprite_folder": "archer"
+	  "max_hp": 8, "max_ap": 5, "attack_damage": 3, "attack_cost": 2, "attack_range": 3, "sprite_folder": "archer",
+	  "chatter": {
+		"frontline": ["I see you, ugly.", "Too close for comfort.", "Back off or get a splinter.", "I'm better at a distance.", "Shadows are my best friends.", "Don't blink, I might vanish.", "You're in my personal space.", "Keep 'em busy, I'm busy aiming.", "I like your neck. It needs an arrow.", "Stop moving so much!"],
+		"attack": ["Bullseye!", "Right between the eyes.", "Oops, did that hurt?", "Gift from afar!", "Pin 'em down!", "Swift and silent.", "Find the gap.", "Don't run, you'll just die tired.", "Fly true.", "Heart-seeker!"],
+		"idle": ["What's for launch?", "Anyone got a snack?", "Counting my fletching... again.", "Wind's picking up.", "Waiting for a clear shot.", "I should've brought more snacks.", "Anyone see a rabbit? I'm hungry.", "My bow arm is cramping.", "Maybe I'll just nap here.", "Is it over yet?"],
+		"hard_hit": ["That was a bit much!", "Ey! Watch the fingers!", "I'm leaking!", "I prefer doing the hitting!", "Not the face, I'm the bait!", "Ouch... right in the ego.", "Someone pin that guy down!", "I need a drink and a bandage.", "That's definitely gonna bruise.", "Cheater!"]
+	  }
 	},
 	"Ballista": {
-	  "max_hp": 8,
-	  "max_ap": 3,
-	  "attack_damage": 5,
-	  "attack_cost": 3,
-	  "attack_range": 8,
-	  "sprite_folder": "ballista"
+	  "max_hp": 8, "max_ap": 3, "attack_damage": 5, "attack_cost": 3, "attack_range": 8, "sprite_folder": "ballista",
+	  "chatter": {
+		"frontline": ["Clear the line of fire!", "This thing is heavy!", "Watch the recoil!", "Don't step on the bolts!", "Calibration is off!", "Needs more grease!", "Who's protecting us?!", "Get out of the way, idiot!", "The gears are sticking!", "I'm too old for this!"],
+		"attack": ["FIRE!", "LOOSE!", "INCOMING!", "BOOM!", "TIMBER!", "CRANK IT!", "SEND IT!", "SPLASH!", "DIRECT HIT!", "RELOAD!"],
+		"idle": ["My back hurts.", "Should've joined the cavalry.", "Gears need oiling.", "Counting bolts... 14, 15...", "Waiting for the wind to die.", "Who brought the lunch?", "The tension is killing me.", "Standard procedure is boring.", "Maintenance never ends.", "Is it payday yet?"],
+		"hard_hit": ["We're taking structural damage!", "Abandon ship! Oh wait.", "Stop hitting the expensive equipment!", "Ow! My wrenches!", "That's gonna need a lot of glue.", "Can we get some infantry over here?!", "I'm just a technician!", "Why me?!", "The axle's cracked!", "My health insurance doesn't cover this!"]
+	  }
 	}
   },
   "Enemy": {
 	"Goblin": {
-	  "max_hp": 3,
-	  "max_ap": 6,
-	  "attack_damage": 1,
-	  "attack_cost": 2,
-	  "attack_range": 1,
-	  "sprite_folder": "goblin"
+	  "max_hp": 3, "max_ap": 6, "attack_damage": 1, "attack_cost": 2, "attack_range": 1, "sprite_folder": "goblin",
+	  "chatter": {
+		"frontline": ["HEHEHE!", "Shiny gold!", "I bite your toes!", "You big, me small, me fast!", "We is everywhere!", "Stink skins!", "Gimme your boots!", "Me hungry!", "Surprise!", "Nyah-nyah!"],
+		"attack": ["SHANK!", "DIE!", "GOTCHA!", "BITE!", "POKE!", "KEKE!", "STABBY!", "SLIT!", "MINE!", "OUCH (for you)!"],
+		"idle": ["Is it safe yet?", "Lookin' for bugs.", "Maybe me run away soon.", "Left... right... which way?", "Waiting is for big dummies.", "Me ears itch.", "Where's da shiny?", "Can me go home?", "Counting my fleas...", "Bored goblin is a sneaky goblin."],
+		"hard_hit": ["EEEEK!", "NO HURT ME!", "ME WASN'T DOIN' NOTHIN'!", "HELP!", "TOO BIG!", "WAAAAAH!", "ME BLEEDIN'!", "RETREAT!", "MOMMY!", "OUCHIE!"]
+	  }
 	},
 	"Orc Brute": {
-	  "max_hp": 8,
-	  "max_ap": 4,
-	  "attack_damage": 3,
-	  "attack_cost": 3,
-	  "attack_range": 1,
-	  "sprite_folder": "orc_brute"
+	  "max_hp": 8, "max_ap": 4, "attack_damage": 3, "attack_cost": 3, "attack_range": 1, "sprite_folder": "orc_brute",
+	  "chatter": {
+		"frontline": ["I SMELL FRESH MEAT!", "GONNA SMASH YER HEAD IN!", "WHO WANTS TO DIE FIRST?", "STUPID PINK SKINS!", "COME HERE SO I CAN EAT YA!", "WAAAGH!", "I'M GONNA MAKE A RUG OUTTA YOU!", "YOU LOOK TASTY!", "STOP RUNNIN', BITCH!", "I'LL SNAP YER BONES!"],
+		"attack": ["DIE BITCH!", "CRUNCH TIME!", "SMASH!", "BLOOD!", "KILL EM ALL!", "FOR DA BOSS!", "ARGHHH!", "MEAT!", "SNAP!", "BREAK YA!"],
+		"idle": ["I'S BORED. WANT SMASH.", "DID I LEAVE DA OVEN ON?", "WHERE'D DA FIGHT GO?", "ME BELLY IS GROWLIN'.", "I'S GONNA FALL ASLEEP.", "WISH I HAD A BIGGER CLUB.", "CAN WE GO YET?", "I'S COUNTIN' MY TOES. ONE... TWO...", "WHY WE STANDIN' HERE?", "I WANT TO BITE SOMETHING."],
+		"hard_hit": ["I'll eat your face!!!", "Ur-ka-ka!", "YOU TASTE LIKE CHICKEN!", "THAT HURT, BITCH!", "WAAAGH! MY SPLEEN!", "I'M GONNA GUT YA!", "CHOP YA TO BITS!", "MY TOOTH! YOU BROKE MY TOOTH!", "YOU'RE DEAD! TOTALLY DEAD!", "ME GONNA SQUISH YA FOR DAT!"]
+	  }
 	},
 	"Orc Archer": {
-	  "max_hp": 5,
-	  "max_ap": 5,
-	  "attack_damage": 2,
-	  "attack_cost": 2,
-	  "attack_range": 3,
-	  "sprite_folder": "orc_archer"
+	  "max_hp": 5, "max_ap": 5, "attack_damage": 2, "attack_cost": 2, "attack_range": 3, "sprite_folder": "orc_archer",
+	  "chatter": {
+		"frontline": ["Arrows is sharp!", "I'll pin ya to a tree!", "Stop twitchin'!", "Me aim is... mostly good!", "Get in da pot!", "Look at da target!", "Me want your hat!", "Stand still, pink skin!", "I see you bleedin'!", "WAAAGH! FROM AFAR!"],
+		"attack": ["ZING!", "GOTCHA!", "STUCK YA!", "PINNED!", "DIE!", "SQUWERED!", "HOLE IN ONE!", "FEATHERED!", "THWACK!", "EAT STICK!"],
+		"idle": ["What's for launch?", "Wind's blowin' me nose.", "Bowstring is itchy.", "Waitin' for a target.", "Me want more arrows.", "Shiny things... over there?", "I's gonna nap.", "Countin' birds. Bang! One dead.", "Anyone got grog?", "Static targets is better."],
+		"hard_hit": ["EY! THAT'S ME SHOOTIN' ARM!", "POKE ME BACK, ME POKE YOU!", "ARGH! MY EYE!", "STOP DAT!", "OW! ME LEAKIN' JUICE!", "ME GONNA SHOOT YER FACE OFF!", "THAT WASN'T NICE!", "WAAAGH! HELP ME!", "YOU DIE NEXT!", "RUNNIN' AWAY!"]
+	  }
 	},
 	"Orc Ballista": {
-	  "max_hp": 10,
-	  "max_ap": 4,
-	  "attack_damage": 4,
-	  "attack_cost": 4,
-	  "attack_range": 5,
-	  "sprite_folder": "orc_ballista"
+	  "max_hp": 10, "max_ap": 4, "attack_damage": 4, "attack_cost": 4, "attack_range": 5, "sprite_folder": "orc_ballista",
+	  "chatter": {
+		"frontline": ["BIG BOLTS FOR BIG DUMMIES!", "WATCH DA SPLASH!", "CRANK IT HARDER!", "GET OUT DA WAY!", "SMASH DA WALLS!", "GONNA MAKE A MESS!", "LOOK AT DA SIZE OF DAT!", "INCOMING DOOM!", "WAAGH ENGINE!", "ME WANT TO FIRE IT!"],
+		"attack": ["BOOM!", "SPLASH!", "CRUNCH!", "GONE!", "SPLAT!", "SEND IT!", "KABOOM!", "BIG HOLE!", "LOOSE!", "CRASH!"],
+		"idle": ["My back hurts.", "Gears is squeaky.", "Waitin' for da wind.", "Crank is heavy.", "Me hungry for rock.", "Counting bolts... 3... 4...", "Is it time yet?", "Boss says fire. Me say wait.", "Rust everywhere.", "Me want a bigger one."],
+		"hard_hit": ["OY! STOP HITTIN' DA WOOD!", "WE TAKIN' WATER! WAIT, NO.", "OW! ME SPANNERS!", "THAT COST A LOTTA TEEF!", "REPAIR IT! QUICK!", "WAAAGH! IT'S BREAKIN'!", "NOT DA GEARS!", "ME GONNA SQUASH YA FOR DAT!", "HELP! INFANTRY!", "WE'RE GONNA BLOW!"]
+	  }
 	},
 	"Orc Overlord": {
-	  "max_hp": 20,
-	  "max_ap": 6,
-	  "attack_damage": 5,
-	  "attack_cost": 3,
-	  "attack_range": 1,
-	  "sprite_folder": "orc_overlord"
+	  "max_hp": 20, "max_ap": 6, "attack_damage": 5, "attack_cost": 3, "attack_range": 1, "sprite_folder": "orc_overlord",
+	  "chatter": {
+		"frontline": ["I AM YOUR DOOM!", "KNEEL BEFORE DA BOSS!", "ME GONNA CRUSH YA ALL!", "PATHETIC WORMS!", "FEAST FOR DA CROWS!", "WITNESS MY MIGHT!", "EVERYTHING BURNS!", "I AM DA LAW HERE!", "CHOP 'EM TO BITS!", "BRING ME THEIR HEADS!"],
+		"attack": ["DIE!", "CRUSH!", "OBLITERATE!", "EXECUTE!", "DONE!", "FALL!", "FEAR ME!", "WORTHLESS!", "BROKEN!", "NEXT!"],
+		"idle": ["Why are we waiting? KILL!", "The air smells of fear.", "My blade is thirsty.", "Patience is a virtue me don't have.", "Tick tock, pink skins.", "I hear the void laughing.", "Stillness is for the dead.", "I am the storm.", "The darkness is my shadow.", "Who's next for the pot?"],
+		"hard_hit": ["UR-KA-KA!", "YOU DARE STRIKE ME?!", "ME GONNA EAT YER SOUL!", "THAT'S IT! YOU'RE DEAD!", "WAAAGH! ETERNAL!", "ME BLOOD IS FIRE!", "I'LL HAUNT YOUR ASS FOR THAT!", "MISTAKE! BIG MISTAKE!", "I'LL TEAR YER HEART OUT!", "DEATH IS TOO GOOD FOR YA!"]
+	  }
 	},
 	"Insurgent": {
-	  "max_hp": 6,
-	  "max_ap": 6,
-	  "attack_damage": 3,
-	  "attack_cost": 2,
-	  "attack_range": 1,
-	  "sprite_folder": "insurgent"
+	  "max_hp": 6, "max_ap": 6, "attack_damage": 3, "attack_cost": 2, "attack_range": 1, "sprite_folder": "insurgent",
+	  "chatter": {
+		"frontline": ["For the cause!", "No more kings!", "Freedom is written in blood.", "Take back the land!", "The shadows grow restless...", "Waiting is a slow death.", "Your kingdom is falling.", "They won't find your body.", "Cold steel for cold hearts.", "Whispers of rebellion..."],
+		"attack": ["SILENCE.", "FADE AWAY.", "STRIKE!", "FOR LIBERTY!", "CUT!", "END IT!", "NOW!", "REAP!", "DEATH TO TYRANTS!", "CLOSE RANGE!"],
+		"idle": ["The shadows grow restless...", "Waiting is a slow death.", "Time is an illusion.", "I hear the void calling.", "Stillness before the storm.", "The darkness is patient.", "Counting the beats of your heart.", "Watching... always watching.", "Even light eventually dies.", "The silence is beautiful."],
+		"hard_hit": ["Its above my paygrade", "I'll haunt your ass for that!", "Not the face!", "Mistakes were made.", "Shadows... protect... me...", "I'm seeing stars... and they're mean.", "Who hired these guys?", "That was personal.", "Retreating to the abyss... briefly.", "The light! It burns!"]
+	  }
 	},
 	"Insurgent Archer": {
-	  "max_hp": 5,
-	  "max_ap": 5,
-	  "attack_damage": 2,
-	  "attack_cost": 2,
-	  "attack_range": 3,
-	  "sprite_folder": "insurgent_archer"
+	  "max_hp": 5, "max_ap": 5, "attack_damage": 2, "attack_cost": 2, "attack_range": 3, "sprite_folder": "insurgent_archer",
+	  "chatter": {
+		"frontline": ["Target acquired.", "Breathing check.", "Distance: perfect.", "The wind whispers your name.", "Shadows mask the bow.", "One shot, one less tyrant.", "Quiet now.", "I see the fear in your eyes.", "No escape from the heights.", "The cause demands your life."],
+		"attack": ["THWIP.", "DROPPED.", "HIT.", "SENT.", "CLEAR.", "SEALED.", "QUIET.", "DONE.", "MARK.", "SEEK."],
+		"idle": ["Boredom is a silent killer.", "Counting my fletching... again.", "Wind's picking up.", "Waiting for a clear shot.", "I should've brought more snacks.", "Anyone see a rabbit? I'm hungry.", "My bow arm is cramping.", "Maybe I'll just nap here.", "Is it over yet?", "Watching the world burn."],
+		"hard_hit": ["Mistake.", "Distance... lost.", "Blood on the string.", "Compromised.", "Retreating to cover.", "Pain is just data.", "Focus... failing.", "They found me.", "Darkness... closer...", "Unacceptable."]
+	  }
 	},
 	"Shadow Assassin": {
-	  "max_hp": 4,
-	  "max_ap": 10,
-	  "attack_damage": 6,
-	  "attack_cost": 2,
-	  "attack_range": 1,
-	  "sprite_folder": "shadow_assassin"
+	  "max_hp": 4, "max_ap": 10, "attack_damage": 6, "attack_cost": 2, "attack_range": 1, "sprite_folder": "shadow_assassin",
+	  "chatter": {
+		"frontline": ["The void approaches...", "Your heartbeat is too loud.", "Embrace the cold.", "Every breath is a gift you're wasting.", "The shadows hunger.", "I am your final nightmare.", "Don't fight it. It's easier.", "Your soul is flickering.", "Darkness is coming for you.", "Whispers in the dark..."],
+		"attack": ["Silence.", "Fade away.", "The end is here.", "Darkness bites.", "No escape.", "Cold steel.", "Shhh.", "Into the abyss.", "Reap.", "Extinguish."],
+		"idle": ["The shadows grow restless...", "Waiting is a slow death.", "Time is an illusion.", "I hear the void calling.", "Stillness before the storm.", "The darkness is patient.", "Counting the beats of your heart.", "Watching... always watching.", "Even light eventually dies.", "The silence is beautiful."],
+		"hard_hit": ["Its above my paygrade", "I'll haunt your ass for that!", "Not the face!", "Mistakes were made.", "Shadows... protect... me...", "I'm seeing stars... and they're mean.", "Who hired these guys?", "That was personal.", "Retreating to the abyss... briefly.", "The light! It burns!"]
+	  }
 	}
   }
 }

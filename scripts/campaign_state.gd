@@ -6,6 +6,7 @@ extends Node
 
 const SAVE_PATH = "user://campaign.save"
 const CONFIG_PATH = "res://config/units.json"
+const GAME_CONFIG_PATH = "res://config/game.json"
 
 var current_stage: int = 1
 var player_roster: Array[UnitData] = []
@@ -13,9 +14,11 @@ var next_available_id: int = 100
 var last_siege_reinforcement_stage: int = 0
 
 var unit_config: Dictionary = {}
+var game_config: Dictionary = {}
 
 func _ready():
 	_load_config()
+	_load_game_config()
 	if not load_game():
 		_initialize_roster()
 
@@ -30,6 +33,26 @@ func _load_config():
 			print("Failed to parse unit configuration JSON.")
 	else:
 		print("Unit configuration file not found at: ", CONFIG_PATH)
+
+func _load_game_config():
+	if FileAccess.file_exists(GAME_CONFIG_PATH):
+		var file = FileAccess.open(GAME_CONFIG_PATH, FileAccess.READ)
+		var json = JSON.parse_string(file.get_as_text())
+		if json:
+			game_config = json
+			print("Game configuration loaded successfully.")
+	else:
+		# Fallback defaults
+		game_config = {
+			"chatter": {
+				"probability_per_turn": 0.25,
+				"probability_per_attack": 0.6,
+				"idle_threshold_turns": 2,
+				"frontline_distance": 3,
+				"hard_hit_threshold_ratio": 0.3,
+				"display_duration_seconds": 3.0
+			}
+		}
 
 func get_base_stats(team: String, unit_class: String) -> Dictionary:
 	if unit_config.has(team) and unit_config[team].has(unit_class):
@@ -55,6 +78,7 @@ func _create_player_unit(u_class: String, name: String) -> UnitData:
 		data.attack_cost = stats.attack_cost
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
+		data.chatter_data = stats.get("chatter", {})
 	
 	data.restore_stats()
 	return data

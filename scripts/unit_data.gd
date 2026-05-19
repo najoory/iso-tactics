@@ -21,6 +21,9 @@ var current_ap: int = 5
 var ap_at_end_of_turn: int = 0
 var saved_defense: int = 0
 
+# Immersive Features
+var chatter_data: Dictionary = {} # Scenarios -> Array[String]
+
 # Strategic Order
 var active_order: Dictionary = {} # {"type": "attack", "target_id": int, "target_grid": Vector2i}
 
