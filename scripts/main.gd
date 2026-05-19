@@ -874,12 +874,20 @@ func _spawn_units():
 
 	var stage = CampaignState.current_stage
 	
+	# SAFETY: If roster is empty (can happen if player quits after units die but before Game Over)
+	if CampaignState.player_roster.is_empty():
+		print("WARNING: Player roster empty on spawn! Re-initializing basic units.")
+		CampaignState._initialize_roster()
+	
+	print("Spawning Player Roster: ", CampaignState.player_roster.size(), " units.")
+	
 	# Spawn Player on the LEFT half
 	var max_player_x = floor(grid_size.x / 2.0) - 2
 	for d in CampaignState.player_roster:
 		d.restore_stats()
 		d.active_order = {}
-		_create_unit_from_data(Vector2i(randi_range(1, max_player_x), randi_range(2, grid_size.y - 3)), d)
+		var spawn_pos = Vector2i(randi_range(1, max_player_x), randi_range(2, grid_size.y - 3))
+		_create_unit_from_data(spawn_pos, d)
 	
 	CampaignState.save_game()
 	
@@ -994,7 +1002,6 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 		for y in range(grid_size.y):
 			for x in range(start_x, end_x + 1):
 				var check_pos = Vector2i(x, y)
-				
 				var check_forbidden = false
 				if data.team == "Player":
 					var ct = grid_data.get(check_pos, Terrain.GRASS)
@@ -1007,6 +1014,21 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 					found = true
 					break
 			if found: break
+			
+		# SECOND FALLBACK: Scan entire map for ANY grass tile
+		if not found:
+			print("CRITICAL: No spawn spot found in team half for ", data.unit_name, ". Scanning entire map...")
+			for y in range(grid_size.y):
+				for x in range(grid_size.x):
+					var check_pos = Vector2i(x, y)
+					if grid_data.get(check_pos) == Terrain.GRASS and not units.has(check_pos):
+						final_pos = check_pos
+						found = true
+						break
+				if found: break
+		
+		if not found:
+			print("ULTIMATE FAILURE: No grass tile found for ", data.unit_name, "! Spawning at ", final_pos, " anyway.")
 	
 	var unit = unit_scene.instantiate()
 	unit.data = data
@@ -1019,6 +1041,7 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 	
 	# INITIALIZE DEFENSE: Ensure units have accurate starting armor
 	unit.update_saved_defense()
+	print("Created unit ", data.unit_name, " at ", final_pos)
 
 func _on_unit_died(unit: Unit):
 	if unit.team == "Player":
