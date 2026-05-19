@@ -1320,6 +1320,7 @@ func _setup_casualty_graveyards():
 	player_grave.name = "player_graveyard"
 	game_over_panel.add_child(player_grave)
 	player_grave.position = Vector2(screen_size.x * 0.15, screen_size.y * 0.5)
+	_add_graveyard_title(player_grave, "LOST", -1)
 	_fill_graveyard(player_grave, player_casualties, 1)
 	
 	# Enemy Graveyard (Right)
@@ -1327,7 +1328,24 @@ func _setup_casualty_graveyards():
 	enemy_grave.name = "enemy_graveyard"
 	game_over_panel.add_child(enemy_grave)
 	enemy_grave.position = Vector2(screen_size.x * 0.85, screen_size.y * 0.5)
+	_add_graveyard_title(enemy_grave, "KILLED", 1)
 	_fill_graveyard(enemy_grave, enemy_casualties, -1)
+
+func _add_graveyard_title(container: Control, text: String, side_dir: int):
+	var title = Label.new()
+	title.text = text
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_shadow_color", Color.BLACK)
+	title.add_theme_constant_override("shadow_offset_x", 2)
+	title.add_theme_constant_override("shadow_offset_y", 2)
+	title.add_theme_color_override("font_outline_color", Color(0.2, 0.1, 0.0))
+	title.add_theme_constant_override("outline_size", 8)
+	
+	container.add_child(title)
+	# Position above the graveyard center
+	title.position = Vector2(-100, -220)
+	title.custom_minimum_size = Vector2(200, 50)
 
 func _fill_graveyard(container: Control, casualties: Array[UnitData], side_dir: int):
 	var spacing_x = 90
@@ -1366,12 +1384,16 @@ func _fill_graveyard(container: Control, casualties: Array[UnitData], side_dir: 
 		sprite_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		sprite_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		
-		var tex = data.get_preview_texture()
+		# Prioritize corpse sprite
+		var tex = data.get_corpse_texture()
+		if not tex:
+			tex = data.get_preview_texture()
+			# Desaturate if using preview as fallback
+			sprite_rect.modulate = Color(0.6, 0.6, 0.7, 0.8)
+		
 		if tex:
 			sprite_rect.texture = tex
 		
-		# Desaturate deceased units
-		sprite_rect.modulate = Color(0.6, 0.6, 0.7, 0.8)
 		unit_view.add_child(sprite_rect)
 
 func _show_game_over(text: String):

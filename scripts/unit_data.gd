@@ -39,6 +39,12 @@ func get_preview_texture() -> Texture2D:
 		return load(tex_path)
 	return null
 
+func get_corpse_texture() -> Texture2D:
+	var tex_path = "res://assets/units/%s/corpse.png" % sprite_folder
+	if ResourceLoader.exists(tex_path):
+		return load(tex_path)
+	return null
+
 func upgrade():
 	level += 1
 	max_hp += 2
