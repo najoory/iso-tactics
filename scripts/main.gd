@@ -358,14 +358,14 @@ func _setup_battlefield_hud():
 	stage_panel.add_theme_stylebox_override("panel", sb)
 	$CanvasLayer/UI.add_child(stage_panel)
 	stage_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	stage_panel.offset_left = -220
+	stage_panel.offset_left = -160
 	stage_panel.offset_right = -20
 	stage_panel.offset_top = 20
-	stage_panel.offset_bottom = 90
+	stage_panel.offset_bottom = 65
 	
 	stage_label = Label.new()
 	stage_label.add_theme_color_override("font_color", Color.BLACK)
-	stage_label.add_theme_font_size_override("font_size", 22)
+	stage_label.add_theme_font_size_override("font_size", 14)
 	stage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stage_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	stage_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -377,13 +377,13 @@ func _setup_battlefield_hud():
 	$CanvasLayer/UI.add_child(victory_panel)
 	victory_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	victory_panel.offset_left = 20
-	victory_panel.offset_right = 300
+	victory_panel.offset_right = 220
 	victory_panel.offset_top = 20
-	victory_panel.offset_bottom = 90
+	victory_panel.offset_bottom = 65
 	
 	victory_chance_label = Label.new()
 	victory_chance_label.add_theme_color_override("font_color", Color.BLACK)
-	victory_chance_label.add_theme_font_size_override("font_size", 22)
+	victory_chance_label.add_theme_font_size_override("font_size", 14)
 	victory_chance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	victory_chance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	victory_chance_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
