@@ -1,0 +1,14 @@
+# Exclude internal engine and version control folders
+.godot/
+.git/
+.idea/
+
+# Exclude large binary assets and backups
+assets/backup_v7/
+**/*.zip
+**/*.import
+
+# Exclude logs and temp files
+logs/
+*.log
+tmp/
