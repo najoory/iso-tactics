@@ -8,19 +8,25 @@ extends Camera2D
 var shake_intensity: float = 0.0
 var shake_decay: float = 5.0
 
+var drag_enabled: bool = true
+var is_dragging: bool = false
+var last_mouse_pos: Vector2
+
 func _process(delta):
-	# Panning
+	# Panning (WASD)
 	var direction = Vector2.ZERO
-	if Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D):
-		direction.x += 1
-	if Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A):
-		direction.x -= 1
-	if Input.is_action_pressed("ui_down") or Input.is_key_pressed(KEY_S):
-		direction.y += 1
-	if Input.is_action_pressed("ui_up") or Input.is_key_pressed(KEY_W):
-		direction.y -= 1
-	
-	position += direction.normalized() * pan_speed * delta * (1.0 / zoom.x)
+	if not is_dragging:
+		if Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D):
+			direction.x += 1
+		if Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A):
+			direction.x -= 1
+		if Input.is_action_pressed("ui_down") or Input.is_key_pressed(KEY_S):
+			direction.y += 1
+		if Input.is_action_pressed("ui_up") or Input.is_key_pressed(KEY_W):
+			direction.y -= 1
+		
+		if direction != Vector2.ZERO:
+			position += direction.normalized() * pan_speed * delta * (1.0 / zoom.x)
 	
 	# Shake
 	if shake_intensity > 0:
@@ -36,6 +42,33 @@ func _unhandled_input(event):
 			_set_zoom(zoom.x + zoom_speed)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_set_zoom(zoom.x - zoom_speed)
+		
+		# Dragging
+		if drag_enabled and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				is_dragging = true
+				last_mouse_pos = event.position
+			else:
+				is_dragging = false
+	
+	if event is InputEventMouseMotion and is_dragging:
+		var mouse_delta = event.position - last_mouse_pos
+		position -= mouse_delta * (1.0 / zoom.x)
+		last_mouse_pos = event.position
+
+func set_drag_enabled(enabled: bool):
+	drag_enabled = enabled
+	if not enabled:
+		is_dragging = false
+
+func is_dragging_active() -> bool:
+	return is_dragging
+
+func set_limit_rect(r: Rect2):
+	limit_left = int(r.position.x)
+	limit_top = int(r.position.y)
+	limit_right = int(r.end.x)
+	limit_bottom = int(r.end.y)
 
 func _set_zoom(new_zoom: float):
 	new_zoom = clamp(new_zoom, min_zoom, max_zoom)

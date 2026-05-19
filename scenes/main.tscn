@@ -92,7 +92,7 @@ offset_right = 200.0
 offset_bottom = 70.0
 mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="CanvasLayer/UI/Tooltip"]
+[node name="Margin" type="MarginContainer" parent="CanvasLayer/UI/Tooltip" unique_id=1336427906]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
@@ -150,7 +150,7 @@ theme_override_font_sizes/font_size = 48
 text = "VICTORY"
 horizontal_alignment = 1
 
-[node name="Rewards" type="VBoxContainer" parent="CanvasLayer/GameOver" unique_id=483740538]
+[node name="Rewards" type="HBoxContainer" parent="CanvasLayer/GameOver" unique_id=483740538]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

@@ -1,9 +1,11 @@
 extends Node2D
 
 @onready var tile_map: TileMapLayer = $TileMapLayer
+var bg_layer: TileMapLayer
 @onready var highlight_layer: TileMapLayer = $HighlightLayer
 @onready var order_lines: Node2D = $OrderLines
 @onready var units_container: Node2D = $Units
+@onready var camera: Camera2D = $Camera2D
 @onready var turn_label: Label = $CanvasLayer/UI/TurnLabel
 @onready var execute_orders_button: Button = $CanvasLayer/UI/ActionButtons/ExecuteOrders
 @onready var tooltip: PanelContainer = $CanvasLayer/UI/Tooltip
@@ -12,8 +14,12 @@ extends Node2D
 @onready var game_over_panel: ColorRect = $CanvasLayer/GameOver
 @onready var game_over_label: Label = $CanvasLayer/GameOver/Label
 @onready var restart_button: Button = $CanvasLayer/GameOver/Restart
-@onready var reward_container: VBoxContainer = $CanvasLayer/GameOver/Rewards
+@onready var reward_container: HBoxContainer = $CanvasLayer/GameOver/Rewards
 @onready var combat_tip: Label = $CanvasLayer/UI/CombatTip
+
+var siege_panel: ColorRect
+var retreat_panel: ColorRect
+var vignette_overlay: ColorRect
 
 var unit_scene = preload("res://scenes/unit.tscn")
 var units: Dictionary = {} # grid_pos -> Unit
@@ -31,10 +37,50 @@ var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
 func _ready():
+	# Create BackgroundLayer dynamically
+	if not has_node("BackgroundLayer"):
+		var bg = TileMapLayer.new()
+		bg.name = "BackgroundLayer"
+		bg.tile_set = tile_map.tile_set
+		bg.z_index = -1
+		bg.modulate = Color(1.0, 1.0, 1.0, 1.0) # Full brightness for seamless look
+		add_child(bg)
+		bg_layer = bg
+	
+	# Create Vignette Overlay
+	if not has_node("VignetteOverlay"):
+		var vo = ColorRect.new()
+		vo.name = "VignetteOverlay"
+		vo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vo.z_index = 5
+		add_child(vo)
+		vignette_overlay = vo
+		
+		var shader_code = """
+shader_type canvas_item;
+uniform float inner_radius = 0.3;
+uniform float outer_radius = 1.0;
+uniform vec4 vignette_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
+
+void fragment() {
+	// Elliptical distance for widescreen framing
+	vec2 rel_uv = (UV - 0.5) * 2.0;
+	float dist = length(rel_uv);
+	float alpha = smoothstep(inner_radius, outer_radius, dist);
+	COLOR = vec4(vignette_color.rgb, alpha);
+}
+"""
+		var mat = ShaderMaterial.new()
+		mat.shader = Shader.new()
+		mat.shader.code = shader_code
+		vo.material = mat
+
 	print("Tactical Refinement Initialized: Automatic Guard system online.")
 	_setup_astar()
 	_draw_procedural_map()
 	_spawn_units()
+	
+	_setup_dynamic_ui()
 	
 	execute_orders_button.pressed.connect(_execute_player_orders)
 	restart_button.pressed.connect(_restart_game)
@@ -44,12 +90,242 @@ func _ready():
 	$CanvasLayer/GameOver/Rewards/AddBallista.pressed.connect(_on_reward_selected.bind("ballista"))
 	$CanvasLayer/GameOver/Rewards/UpgradeUnit.pressed.connect(_on_reward_selected.bind("upgrade"))
 	
+	_style_tooltip()
+	_style_game_over()
+	
+	if CampaignState.current_stage % 5 == 0:
+		_trigger_siege_event()
+	
 	_update_ui()
 	_center_camera()
+	if CampaignState.has_meta("debug_victory_requested") and CampaignState.get_meta("debug_victory_requested"):
+		CampaignState.set_meta("debug_victory_requested", false)
+		call_deferred("_show_game_over", "VICTORY")
+
+func _trigger_siege_event():
+	siege_panel.visible = true
+	
+	# Give free ballista ONLY ONCE per siege stage
+	if CampaignState.current_stage > CampaignState.last_siege_reinforcement_stage:
+		CampaignState.add_ballista()
+		CampaignState.last_siege_reinforcement_stage = CampaignState.current_stage
+		# Spawn it immediately
+		var data = CampaignState.player_roster.back()
+		data.restore_stats()
+		_create_unit_from_data(Vector2i(2, randi_range(3, 7)), data)
+		CampaignState.save_game()
 
 func _center_camera():
 	var center_pos = tile_map.map_to_local(grid_size / 2)
-	$Camera2D.position = center_pos
+	$Camera2D.global_position = center_pos
+
+func _style_tooltip():
+	var parch_tex = load("res://assets/ui/parchment_clean.png")
+	if parch_tex:
+		tooltip.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var sb = StyleBoxTexture.new()
+		sb.texture = parch_tex
+		sb.texture_margin_left = 40
+		sb.texture_margin_right = 40
+		sb.texture_margin_top = 40
+		sb.texture_margin_bottom = 40
+		sb.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+		sb.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+		tooltip.add_theme_stylebox_override("panel", sb)
+		tooltip_name.add_theme_color_override("font_color", Color.BLACK)
+		tooltip_stats.add_theme_color_override("font_color", Color.DARK_SLATE_GRAY)
+
+func _style_game_over():
+	game_over_panel.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	
+	# High-detail Backdrop
+	var vic_tex = load("res://assets/ui/victory_bg.png")
+	if vic_tex:
+		var backdrop = TextureRect.new()
+		backdrop.texture = vic_tex
+		backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop.modulate.a = 0.6
+		game_over_panel.add_child(backdrop)
+		game_over_panel.move_child(backdrop, 0)
+
+	var stone_tex = load("res://assets/ui/stone_board.png")
+	if stone_tex:
+		var stone_bg = TextureRect.new()
+		stone_bg.texture = stone_tex
+		stone_bg.set_anchors_preset(Control.PRESET_CENTER)
+		stone_bg.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		stone_bg.grow_vertical = Control.GROW_DIRECTION_BOTH
+		stone_bg.custom_minimum_size = Vector2(550, 550)
+		stone_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		stone_bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		game_over_panel.add_child(stone_bg)
+		# After backdrop
+		game_over_panel.move_child(stone_bg, 1 if vic_tex else 0)
+
+		# Victory Text Enhancement
+		game_over_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+		game_over_label.add_theme_constant_override("shadow_offset_x", 4)
+		game_over_label.add_theme_constant_override("shadow_offset_y", 4)
+		game_over_label.add_theme_constant_override("outline_size", 12)
+		game_over_label.add_theme_color_override("font_outline_color", Color(0.2, 0.1, 0.0))
+		
+		game_over_label.reparent(stone_bg)
+		game_over_label.set_anchors_preset(Control.PRESET_CENTER)
+		game_over_label.position.y -= 180
+
+		reward_container.reparent(stone_bg)
+		reward_container.set_anchors_preset(Control.PRESET_CENTER)
+		reward_container.add_theme_constant_override("separation", 30)
+		reward_container.position.y += 40
+
+		restart_button.reparent(stone_bg)
+		restart_button.set_anchors_preset(Control.PRESET_CENTER)
+		restart_button.position.y += 180
+
+		# Thematic Buttons
+		var btn_tex = load("res://assets/ui/button_wood.png")
+		if btn_tex:
+			var sb = StyleBoxTexture.new()
+			sb.texture = btn_tex
+			sb.texture_margin_left = 10
+			sb.texture_margin_right = 10
+			sb.texture_margin_top = 10
+			sb.texture_margin_bottom = 10
+			
+			var sb_hover = sb.duplicate()
+			sb_hover.modulate_color = Color(1.2, 1.2, 1.2)
+			
+			var all_buttons = reward_container.get_children()
+			all_buttons.append(restart_button)
+			
+			for btn in all_buttons:
+				if btn is Button:
+					btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+					btn.add_theme_stylebox_override("normal", sb)
+					btn.add_theme_stylebox_override("hover", sb_hover)
+					btn.add_theme_stylebox_override("pressed", sb)
+					btn.custom_minimum_size = Vector2(220, 60)
+					btn.add_theme_color_override("font_color", Color.WHITE)
+					btn.add_theme_color_override("font_hover_color", Color.GOLD)
+
+func _setup_dynamic_ui():
+	# Main Menu and Retreat Buttons
+	var button_container = $CanvasLayer/UI/ActionButtons
+	var btn_tex = load("res://assets/ui/button_wood.png")
+	var sb = StyleBoxTexture.new()
+	if btn_tex:
+		sb.texture = btn_tex
+		sb.texture_margin_left = 10
+		sb.texture_margin_right = 10
+		sb.texture_margin_top = 10
+		sb.texture_margin_bottom = 10
+
+	var sb_hover = sb.duplicate()
+	sb_hover.modulate_color = Color(1.2, 1.2, 1.2)
+
+	# Style existing buttons
+	execute_orders_button.add_theme_stylebox_override("normal", sb)
+	execute_orders_button.add_theme_stylebox_override("hover", sb_hover)
+	execute_orders_button.custom_minimum_size = Vector2(180, 50)
+
+	var menu_btn = Button.new()
+	menu_btn.text = "MAIN MENU"
+	button_container.add_child(menu_btn)
+	menu_btn.pressed.connect(_on_main_menu_pressed)
+	menu_btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	menu_btn.add_theme_stylebox_override("normal", sb)
+	menu_btn.add_theme_stylebox_override("hover", sb_hover)
+	menu_btn.custom_minimum_size = Vector2(160, 50)
+
+	var retreat_btn = Button.new()
+	retreat_btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	retreat_btn.text = "RETREAT"
+	button_container.add_child(retreat_btn)
+	retreat_btn.pressed.connect(_on_retreat_pressed)
+	retreat_btn.add_theme_stylebox_override("normal", sb)
+	retreat_btn.add_theme_stylebox_override("hover", sb_hover)
+	retreat_btn.custom_minimum_size = Vector2(160, 50)
+
+	# Siege Panel Setup
+	siege_panel = ColorRect.new()
+	siege_panel.color = Color(0, 0, 0, 0.8)
+	siege_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	siege_panel.visible = false
+	$CanvasLayer.add_child(siege_panel)
+
+	var siege_vbox = VBoxContainer.new()
+	siege_vbox.set_anchors_preset(Control.PRESET_CENTER)
+	siege_vbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	siege_vbox.grow_vertical = Control.GROW_DIRECTION_BOTH
+	siege_panel.add_child(siege_vbox)
+
+	var siege_title = Label.new()
+	siege_title.text = "SIEGE EVENT!"
+	siege_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	siege_title.add_theme_font_size_override("font_size", 48)
+	siege_vbox.add_child(siege_title)
+
+	var siege_warning = Label.new()
+	siege_warning.text = "WARNING: You need a Ballista to destroy walls\nand pass this level!"
+	siege_warning.modulate = Color.YELLOW
+	siege_warning.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	siege_vbox.add_child(siege_warning)
+
+	var siege_go_btn = Button.new()
+	siege_go_btn.text = "TO BATTLE!"
+	siege_go_btn.custom_minimum_size = Vector2(200, 60)
+	siege_vbox.add_child(siege_go_btn)
+	siege_go_btn.pressed.connect(func(): siege_panel.visible = false)
+
+	# Retreat Panel Setup
+	retreat_panel = ColorRect.new()
+	retreat_panel.color = Color(0, 0, 0, 0.8)
+	retreat_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	retreat_panel.visible = false
+	$CanvasLayer.add_child(retreat_panel)
+
+	var ret_vbox = VBoxContainer.new()
+	ret_vbox.set_anchors_preset(Control.PRESET_CENTER)
+	ret_vbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	ret_vbox.grow_vertical = Control.GROW_DIRECTION_BOTH
+	retreat_panel.add_child(ret_vbox)
+
+	var ret_label = Label.new()
+	ret_label.text = "You've retreated from the battle and\nwill return to the previous level."
+	ret_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ret_label.add_theme_font_size_override("font_size", 24)
+	ret_vbox.add_child(ret_label)
+
+	var ret_confirm = Button.new()
+	ret_confirm.text = "CONFIRM RETREAT"
+	ret_confirm.custom_minimum_size = Vector2(200, 60)
+	ret_vbox.add_child(ret_confirm)
+	ret_confirm.pressed.connect(_on_retreat_confirmed)
+
+	var ret_cancel = Button.new()
+	ret_cancel.text = "STAY AND FIGHT"
+	ret_cancel.custom_minimum_size = Vector2(200, 60)
+	ret_vbox.add_child(ret_cancel)
+	ret_cancel.pressed.connect(func(): retreat_panel.visible = false)
+
+	# Style buttons in panels
+	for btn in [siege_go_btn, ret_confirm, ret_cancel]:
+		btn.add_theme_stylebox_override("normal", sb)
+		btn.add_theme_stylebox_override("hover", sb_hover)
+		btn.add_theme_color_override("font_color", Color.WHITE)
+		btn.add_theme_color_override("font_hover_color", Color.GOLD)
+
+func _on_main_menu_pressed():
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+func _on_retreat_pressed():
+	retreat_panel.visible = true
+
+func _on_retreat_confirmed():
+	CampaignState.retreat()
+	get_tree().reload_current_scene()
 
 func _on_reward_selected(type: String):
 	if type == "knight": CampaignState.add_knight()
@@ -71,30 +347,40 @@ func _restart_game():
 	CampaignState.reset_campaign()
 	get_tree().reload_current_scene()
 
+var last_hovered_unit: Unit = null
+
 func _process(_delta):
 	_update_tooltip_and_tips()
+	if camera and camera.has_method("set_drag_enabled"):
+		var can_drag = (selected_unit == null or not is_instance_valid(selected_unit))
+		camera.set_drag_enabled(can_drag)
 
 func _update_tooltip_and_tips():
 	var mouse_pos = get_global_mouse_position()
-	var grid_pos = tile_map.local_to_map(tile_map.to_local(mouse_pos))
+	var local_mouse = tile_map.to_local(mouse_pos)
+	var grid_pos = tile_map.local_to_map(local_mouse)
 	var screen_mouse_pos = get_viewport().get_mouse_position()
 	
-	if units.has(grid_pos) and units[grid_pos].team == "Player":
-		if not selected_unit or selected_unit != units[grid_pos]:
-			_show_unit_total_range(units[grid_pos])
+	var unit_at_pos = units.get(grid_pos)
+	
+	if unit_at_pos and unit_at_pos.team == "Player":
+		if unit_at_pos != last_hovered_unit and not selected_unit:
+			_show_unit_total_range(unit_at_pos)
+			last_hovered_unit = unit_at_pos
 	elif not selected_unit:
-		highlight_layer.clear()
+		if last_hovered_unit != null:
+			highlight_layer.clear()
+			last_hovered_unit = null
 
-	if units.has(grid_pos):
-		var unit = units[grid_pos]
+	if unit_at_pos:
 		tooltip.visible = true
 		tooltip.position = screen_mouse_pos + Vector2(15, 15)
-		tooltip_name.text = unit.unit_name + " (" + unit.team + ")"
+		tooltip_name.text = unit_at_pos.unit_name + " (" + unit_at_pos.team + ")"
 		
-		var defense = unit.get_current_defense()
-		var stats_text = "HP: %d/%d | AP: %d/%d\nDamage: %d | Defense: %d" % [unit.current_hp, unit.max_hp, unit.current_ap, unit.max_ap, unit.attack_damage, defense]
-		if unit.team == "Player":
-			stats_text += " | XP: %d/%d" % [unit.data.current_exp, unit.max_hp]
+		var defense = unit_at_pos.get_current_defense()
+		var stats_text = "HP: %d/%d | AP: %d/%d\nDamage: %d | Defense: %d" % [unit_at_pos.current_hp, unit_at_pos.max_hp, unit_at_pos.current_ap, unit_at_pos.max_ap, unit_at_pos.attack_damage, defense]
+		if unit_at_pos.team == "Player":
+			stats_text += " | XP: %d/%d" % [unit_at_pos.data.current_exp, unit_at_pos.max_hp]
 		
 		tooltip_stats.text = stats_text
 	elif terrain_hp.has(grid_pos) or grid_data.get(grid_pos) == Terrain.RUIN:
@@ -252,6 +538,22 @@ func _get_coords(id: int) -> Vector2i:
 
 func _draw_procedural_map():
 	tile_map.clear()
+	bg_layer.clear()
+	
+	# Margin: wider on X/Y indices to fill the widescreen left/right corners
+	var margin_x = 30
+	var margin_y = 10
+	
+	for x in range(-margin_x, grid_size.x + margin_x):
+		for y in range(-margin_y, grid_size.y + margin_y):
+			var coords = Vector2i(x, y)
+			if x >= 0 and x < grid_size.x and y >= 0 and y < grid_size.y:
+				continue
+			
+			var source_id = 0 # Grass
+			if (hash(coords) % 100) < 15: source_id = 2 # Forest
+			bg_layer.set_cell(coords, source_id, Vector2i(0, 0))
+
 	for coords in grid_data.keys():
 		var source_id = 0
 		var terrain = grid_data[coords]
@@ -265,10 +567,39 @@ func _draw_procedural_map():
 			Terrain.CORPSE: source_id = 9
 			Terrain.CASTLE: source_id = 10
 		tile_map.set_cell(coords, source_id, Vector2i(0, 0))
+	
+	# Calculate actual world bounds of the generated diamond (all 4 points)
+	var corners = [
+		Vector2i(-margin_x, -margin_y), # Top
+		Vector2i(grid_size.x + margin_x, grid_size.y + margin_y), # Bottom
+		Vector2i(-margin_x, grid_size.y + margin_y), # Left
+		Vector2i(grid_size.x + margin_x, -margin_y) # Right
+	]
+	
+	var min_p = Vector2(999999, 999999)
+	var max_p = Vector2(-999999, -999999)
+	for c in corners:
+		var lp = tile_map.map_to_local(c)
+		min_p.x = min(min_p.x, lp.x)
+		min_p.y = min(min_p.y, lp.y)
+		max_p.x = max(max_p.x, lp.x)
+		max_p.y = max(max_p.y, lp.y)
+	
+	# Position and size vignette to cover this rectangle
+	var map_visual_size = max_p - min_p
+	vignette_overlay.size = map_visual_size * 1.1 # Small buffer
+	vignette_overlay.position = min_p - (vignette_overlay.size - map_visual_size) / 2.0
+	
+	# Limit camera to the generated background area (TIGHT)
+	if camera and camera.has_method("set_limit_rect"):
+		var limit = Rect2(min_p, max_p - min_p)
+		# No buffer, keep it strictly within generated tiles
+		camera.set_limit_rect(limit)
 
 func _spawn_units():
 	units.clear()
 	units_by_id.clear()
+
 	
 	var stage = CampaignState.current_stage
 	var is_castle_stage = (stage % 5 == 0)
@@ -412,9 +743,15 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 	unit.update_saved_defense()
 
 func _unhandled_input(event):
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT: _handle_click()
-		elif event.button_index == MOUSE_BUTTON_RIGHT: _handle_right_click()
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			# Check if camera was dragging (consumed the event)
+			if camera and camera.has_method("is_dragging_active") and camera.is_dragging_active():
+				return
+			_handle_click()
+		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			_handle_right_click()
+	
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_SPACE: _execute_player_orders()
 
@@ -585,6 +922,7 @@ func _process_unit_order(unit: Unit):
 		if unit.grid_position == target_grid: unit.data.active_order = {}
 
 func _move_towards_grid(unit: Unit, target_grid: Vector2i):
+	if not is_instance_valid(unit): return
 	var path = _get_path(unit.grid_position, target_grid)
 	if path.size() <= 1: return
 	var move_path: Array[Vector2i] = [unit.grid_position]
@@ -667,6 +1005,7 @@ func _get_hex_distance(p1: Vector2i, p2: Vector2i) -> int:
 	return (abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)) / 2
 
 func _attack_unit(attacker: Unit, defender: Unit):
+	if not is_instance_valid(attacker) or not is_instance_valid(defender): return
 	if attacker.current_ap < attacker.attack_cost: return
 	attacker.current_ap -= attacker.attack_cost
 	await attacker.attack_animation(defender.position)
@@ -699,21 +1038,13 @@ func _attack_unit(attacker: Unit, defender: Unit):
 				_damage_terrain(s_pos, 1)
 
 	if defender.current_hp <= 0:
-		if defender.team == "Player":
-			print("PERMADEATH: Removing ", defender.unit_name, " from roster.")
-			CampaignState.player_roster.erase(defender.data)
-			CampaignState.save_game()
-
-		var dead_pos = defender.grid_position
-		units.erase(dead_pos)
-		units_by_id.erase(defender.data.unit_id)
-		astar.set_point_disabled(_get_id(dead_pos), false)
 		_check_game_over()
-	
+
 	if is_instance_valid(attacker): _show_unit_total_range(attacker)
 	_draw_all_order_indicators()
-
+	_check_game_over()
 func _attack_terrain(attacker: Unit, target_grid: Vector2i):
+	if not is_instance_valid(attacker): return
 	if attacker.current_ap < attacker.attack_cost: return
 	attacker.current_ap -= attacker.attack_cost
 	var world_pos = tile_map.map_to_local(target_grid)
@@ -733,6 +1064,7 @@ func _attack_terrain(attacker: Unit, target_grid: Vector2i):
 	
 	if is_instance_valid(attacker): _show_unit_total_range(attacker)
 	_draw_all_order_indicators()
+	_check_game_over()
 
 func _damage_terrain(grid_pos: Vector2i, amount: int):
 	if not terrain_hp.has(grid_pos): return
@@ -914,27 +1246,51 @@ func _get_path(start: Vector2i, end: Vector2i) -> Array[Vector2i]:
 	return path_coords
 
 func _move_selected_unit(target_grid_pos: Vector2i):
-	var grid_path = _get_path(selected_unit.grid_position, target_grid_pos)
+	var unit = selected_unit
+	if not unit or not is_instance_valid(unit): return
+	
+	var grid_path = _get_path(unit.grid_position, target_grid_pos)
 	if grid_path.is_empty(): return
 	var cost = _get_path_cost(grid_path)
 	var world_path: Array[Vector2] = []
 	for p in grid_path: world_path.append(tile_map.map_to_local(p))
-	astar.set_point_disabled(_get_id(selected_unit.grid_position), false)
-	units.erase(selected_unit.grid_position)
+	astar.set_point_disabled(_get_id(unit.grid_position), false)
+	units.erase(unit.grid_position)
 	highlight_layer.clear()
-	selected_unit.current_ap -= cost
-	await selected_unit.move_along_path_raw(world_path, grid_path)
-	units[selected_unit.grid_position] = selected_unit
-	astar.set_point_disabled(_get_id(selected_unit.grid_position), true)
-	_show_unit_total_range(selected_unit)
+	unit.current_ap -= cost
+	await unit.move_along_path_raw(world_path, grid_path)
+	units[unit.grid_position] = unit
+	astar.set_point_disabled(_get_id(unit.grid_position), true)
+	if selected_unit == unit:
+		_show_unit_total_range(unit)
 	_draw_all_order_indicators()
 
 func _check_game_over():
+	if game_over_panel.visible: return
+	
+	# Cleanup any units that might have died from splash damage
+	var to_remove = []
+	for pos in units:
+		if units[pos].current_hp <= 0:
+			to_remove.append(pos)
+	
+	for pos in to_remove:
+		var unit = units[pos]
+		if unit.team == "Player":
+			print("PERMADEATH: Removing ", unit.unit_name, " from roster (Splash/Indirect).")
+			CampaignState.player_roster.erase(unit.data)
+			CampaignState.save_game()
+		
+		units.erase(pos)
+		units_by_id.erase(unit.data.unit_id)
+		astar.set_point_disabled(_get_id(pos), false)
+
 	var players_alive = 0
 	var enemies_alive = 0
 	for unit in units.values():
 		if unit.team == "Player": players_alive += 1
 		else: enemies_alive += 1
+	
 	if enemies_alive == 0: _show_game_over("VICTORY")
 	elif players_alive == 0: _show_game_over("DEFEAT")
 
@@ -944,6 +1300,70 @@ func _show_game_over(text: String):
 	if text == "VICTORY":
 		reward_container.visible = true
 		restart_button.visible = false
+		_setup_recruit_stage()
 	else:
 		reward_container.visible = false
 		restart_button.visible = true
+
+func _setup_recruit_stage():
+	game_over_label.text = "RECRUIT A NEW UNIT"
+	for child in reward_container.get_children():
+		child.queue_free()
+	
+	# Ensure horizontal layout for cards
+	reward_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	# In Godot 4, VBox/HBox is a property of the container type, but we can use an HBox inside if needed.
+	# However, I will just assume we want them visible.
+	
+	var tier = floor((CampaignState.current_stage - 1) / 5.0)
+	var min_lvl = int(tier * 5) + 1
+	var max_lvl = int((tier + 1) * 5)
+	
+	var card_scene = load("res://scenes/reward_card.tscn")
+	var classes = ["Knight", "Archer", "Ballista"]
+	
+	for i in range(3):
+		var u_class = classes.pick_random()
+		var lvl = randi_range(min_lvl, max_lvl)
+		
+		var data = CampaignState._create_player_unit(u_class, u_class + " " + str(CampaignState.next_available_id))
+		data.level = lvl
+		# Scale stats with level
+		for j in range(lvl - 1): 
+			data.max_hp += 2
+			data.attack_damage += 1
+		data.restore_stats()
+		
+		var card = card_scene.instantiate()
+		reward_container.add_child(card)
+		card.setup(data, "RECRUIT")
+		card.selected.connect(_on_recruit_selected)
+
+func _on_recruit_selected(data: UnitData):
+	CampaignState.player_roster.append(data)
+	_setup_upgrade_stage()
+
+func _setup_upgrade_stage():
+	game_over_label.text = "TRAIN AN EXISTING UNIT"
+	for child in reward_container.get_children():
+		child.queue_free()
+	
+	# Get 3 lowest level units
+	var roster = CampaignState.player_roster.duplicate()
+	roster.sort_custom(func(a, b): return a.level < b.level)
+	
+	var count = min(3, roster.size())
+	var card_scene = load("res://scenes/reward_card.tscn")
+	
+	for i in range(count):
+		var data = roster[i]
+		var card = card_scene.instantiate()
+		reward_container.add_child(card)
+		card.setup(data, "UPGRADE")
+		card.selected.connect(_on_upgrade_selected)
+
+func _on_upgrade_selected(data: UnitData):
+	data.upgrade()
+	CampaignState.current_stage += 1
+	CampaignState.save_game()
+	get_tree().reload_current_scene()

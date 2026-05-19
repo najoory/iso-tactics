@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/reward_card.gd" id="1_card"]
+[ext_resource type="Texture2D" path="res://assets/ui/button_wood.png" id="2_wood"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card"]
+texture = ExtResource("2_wood")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+
+[node name="RewardCard" type="PanelContainer"]
+custom_minimum_size = Vector2(240, 320)
+offset_right = 240.0
+offset_bottom = 320.0
+mouse_default_cursor_shape = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_card")
+script = ExtResource("1_card")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 18
+text = "Unit Name"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Sprite" type="TextureRect" parent="Margin/VBox"]
+texture_filter = 1
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="Stats" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "HP: 10/10 | AP: 5/5
+ATK: 3 | RNG: 1"
+horizontal_alignment = 1
+autowrap_mode = 3

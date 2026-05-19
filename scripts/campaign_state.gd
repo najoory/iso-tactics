@@ -1,11 +1,16 @@
 extends Node
 
+
+
+
+
 const SAVE_PATH = "user://campaign.save"
 const CONFIG_PATH = "res://config/units.json"
 
 var current_stage: int = 1
 var player_roster: Array[UnitData] = []
 var next_available_id: int = 100 
+var last_siege_reinforcement_stage: int = 0
 
 var unit_config: Dictionary = {}
 
@@ -80,7 +85,12 @@ func upgrade_random_unit():
 func reset_campaign():
 	current_stage = 1
 	next_available_id = 100
+	last_siege_reinforcement_stage = 0
 	_initialize_roster()
+	save_game()
+
+func retreat():
+	current_stage = max(1, current_stage - 1)
 	save_game()
 
 func save_game():
@@ -89,6 +99,7 @@ func save_game():
 		var data = {
 			"current_stage": current_stage,
 			"next_id": next_available_id,
+			"last_siege": last_siege_reinforcement_stage,
 			"roster": []
 		}
 		for unit in player_roster:
@@ -115,6 +126,7 @@ func load_game() -> bool:
 	if data:
 		current_stage = data.get("current_stage", 1)
 		next_available_id = data.get("next_id", 100)
+		last_siege_reinforcement_stage = data.get("last_siege", 0)
 		player_roster.clear()
 		for u in data.get("roster", []):
 			var unit = UnitData.new()
