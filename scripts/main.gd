@@ -379,9 +379,10 @@ func _setup_battlefield_hud():
 	$CanvasLayer/UI.add_child(victory_panel)
 	victory_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	victory_panel.offset_left = 20
-	victory_panel.offset_right = 220
+	victory_panel.offset_right = 350
 	victory_panel.offset_top = 20
-	victory_panel.offset_bottom = 65
+	victory_panel.offset_bottom = 90
+
 	
 	victory_chance_label = Label.new()
 	victory_chance_label.add_theme_color_override("font_color", Color.BLACK)
@@ -562,15 +563,39 @@ func _update_ui():
 		stage_label.text = "STAGE " + str(CampaignState.current_stage)
 	
 	if victory_chance_label:
-		var chance = _calculate_victory_chance() * 100.0
-		victory_chance_label.text = "VICTORY CHANCE: %d%%" % int(chance)
+		var chance = _calculate_victory_chance()
+		_update_victory_flavor_text(chance)
 
 	if current_turn == Turn.PLAYER:
-		turn_label.text = "PLAYER TURN"
+		# turn_label is hidden in favor of the animated banner, but we still track logic here
 		execute_orders_button.disabled = false
 	else:
-		turn_label.text = "ENEMY TURN"
 		execute_orders_button.disabled = true
+
+func _update_victory_flavor_text(chance: float):
+	var percent = int(chance * 100.0)
+	var tiers = [
+		{"range": [0, 10], "color": Color(0.5, 0, 0), "phrases": ["You are doomed", "Write your will", "Start praying"]},
+		{"range": [11, 20], "color": Color(0.8, 0, 0), "phrases": ["A suicide mission", "Total slaughter", "Grim prospects"]},
+		{"range": [21, 30], "color": Color(1.0, 0.2, 0), "phrases": ["Against all odds", "Tough break", "Thin ice"]},
+		{"range": [31, 40], "color": Color(1.0, 0.5, 0), "phrases": ["Uphill battle", "Heavy casualties expected", "Steady your heart"]},
+		{"range": [41, 50], "color": Color(1.0, 0.8, 0), "phrases": ["Balanced on a blade's edge", "Uncertain outcome", "Toss a coin"]},
+		{"range": [51, 60], "color": Color(0.9, 0.9, 0), "phrases": ["Do not miss your chance", "Seize the day", "Looking fair"]},
+		{"range": [61, 70], "color": Color(0.6, 0.9, 0), "phrases": ["Fortune favors the bold", "Advantage: You", "Clear skies ahead"]},
+		{"range": [71, 80], "color": Color(0.3, 1.0, 0), "phrases": ["A walk in the park", "Victory is near", "Press the attack"]},
+		{"range": [81, 90], "color": Color(0, 1.0, 0.2), "phrases": ["Don't fall asleep", "Casual target practice", "Overwhelming might"]},
+		{"range": [91, 100], "color": Color(0, 1.0, 0.5), "phrases": ["A cake walk", "Glorious victory awaits", "Total domination"]}
+	]
+	
+	for tier in tiers:
+		if percent >= tier.range[0] and percent <= tier.range[1]:
+			victory_chance_label.add_theme_color_override("font_color", tier.color)
+			# Pick a new phrase only at start of turn or if tier changes significantly
+			# For now, we'll pick one and stick with it until turn changes (using a turn counter)
+			var seed_val = CampaignState.current_stage + percent / 5 # Stable for the turn
+			var idx = seed_val % tier.phrases.size()
+			victory_chance_label.text = tier.phrases[idx]
+			break
 
 func _calculate_victory_chance() -> float:
 	var player_power = 0.0
