@@ -36,7 +36,13 @@ enum Terrain { GRASS, FOREST, WATER, MOUNTAIN, HOUSE, WALL, RUIN, CORPSE, CASTLE
 var grid_data: Dictionary = {} # grid_pos -> Terrain
 var terrain_hp: Dictionary = {} # grid_pos -> HP
 
+var player_casualties: Array[UnitData] = []
+var enemy_casualties: Array[UnitData] = []
+
 func _ready():
+	player_casualties = []
+	enemy_casualties = []
+	
 	# Create BackgroundLayer dynamically
 	if not has_node("BackgroundLayer"):
 		var bg = TileMapLayer.new()
@@ -735,12 +741,19 @@ func _create_unit_from_data(pos: Vector2i, data: UnitData, allow_disabled: bool 
 	unit.data = data
 	units_container.add_child(unit)
 	unit.setup(final_pos, tile_map.map_to_local(final_pos))
+	unit.died.connect(_on_unit_died)
 	units[final_pos] = unit
 	units_by_id[data.unit_id] = unit
 	astar.set_point_disabled(_get_id(final_pos), true)
 	
 	# INITIALIZE DEFENSE: Ensure units have accurate starting armor
 	unit.update_saved_defense()
+
+func _on_unit_died(unit: Unit):
+	if unit.team == "Player":
+		player_casualties.append(unit.data)
+	else:
+		enemy_casualties.append(unit.data)
 
 func _unhandled_input(event):
 	if event is InputEventMouseButton:
@@ -1294,9 +1307,84 @@ func _check_game_over():
 	if enemies_alive == 0: _show_game_over("VICTORY")
 	elif players_alive == 0: _show_game_over("DEFEAT")
 
+func _setup_casualty_graveyards():
+	# Remove old graveyards if any
+	for old_grave in game_over_panel.get_children():
+		if old_grave.name.ends_with("_graveyard"):
+			old_grave.queue_free()
+	
+	var screen_size = get_viewport().get_visible_rect().size
+	
+	# Player Graveyard (Left)
+	var player_grave = Control.new()
+	player_grave.name = "player_graveyard"
+	game_over_panel.add_child(player_grave)
+	player_grave.position = Vector2(screen_size.x * 0.15, screen_size.y * 0.5)
+	_fill_graveyard(player_grave, player_casualties, 1)
+	
+	# Enemy Graveyard (Right)
+	var enemy_grave = Control.new()
+	enemy_grave.name = "enemy_graveyard"
+	game_over_panel.add_child(enemy_grave)
+	enemy_grave.position = Vector2(screen_size.x * 0.85, screen_size.y * 0.5)
+	_fill_graveyard(enemy_grave, enemy_casualties, -1)
+
+func _fill_graveyard(container: Control, casualties: Array[UnitData], side_dir: int):
+	var spacing_x = 90
+	var spacing_y = 90
+	
+	# Arrange in a mini-hex grid
+	for i in range(casualties.size()):
+		var data = casualties[i]
+		
+		# Simple staggered rows for hex look
+		var row_size = 3
+		var col = i % row_size
+		var row = floor(i / float(row_size))
+		
+		# x offset based on side_dir to keep them centered relative to their screen half
+		var x = (col - (row_size-1)/2.0) * spacing_x * side_dir
+		var y = (row - 1.0) * spacing_y + (abs(col % 2) * spacing_y / 2.0)
+		
+		var unit_view = VBoxContainer.new()
+		unit_view.alignment = BoxContainer.ALIGNMENT_CENTER
+		unit_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		container.add_child(unit_view)
+		unit_view.position = Vector2(x - 40, y - 60)
+		
+		var name_label = Label.new()
+		name_label.text = data.unit_name
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.add_theme_font_size_override("font_size", 12)
+		name_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		name_label.add_theme_constant_override("outline_size", 4)
+		unit_view.add_child(name_label)
+		
+		var sprite_rect = TextureRect.new()
+		sprite_rect.custom_minimum_size = Vector2(80, 80)
+		sprite_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		sprite_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		sprite_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		
+		var tex = data.get_preview_texture()
+		if tex:
+			sprite_rect.texture = tex
+		
+		# Desaturate deceased units
+		sprite_rect.modulate = Color(0.6, 0.6, 0.7, 0.8)
+		unit_view.add_child(sprite_rect)
+
 func _show_game_over(text: String):
 	game_over_panel.visible = true
 	game_over_label.text = text
+	_setup_casualty_graveyards()
+	
+	# Hide gameplay UI
+	$CanvasLayer/UI/TurnLabel.visible = false
+	$CanvasLayer/UI/ActionButtons.visible = false
+	$CanvasLayer/UI/HelpLabel.visible = false
+	$CanvasLayer/UI/CombatTip.visible = false
+	
 	if text == "VICTORY":
 		reward_container.visible = true
 		restart_button.visible = false

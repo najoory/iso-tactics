@@ -6,44 +6,36 @@
 
 ---
 
-## Iteration 1-5: Foundations, AI, and persistence
-*   [DONE] Hexagonal Grid & Isometric Rendering.
-*   [DONE] Basic AI & Ranged Combat.
-*   [DONE] Unit Archetypes (Knight, Archer, Ballista).
-*   [DONE] Campaign Persistence & Scaling Difficulty.
+## Iteration 1-7: Foundations to Siege Tactics
+*   [DONE] Hexagonal Grid, Basic AI, Unit Archetypes.
+*   [DONE] Campaign Persistence, Strategic Orders, Hold Position.
+*   [DONE] Destructible Terrain, Siege Damage, Architectural Generation.
 
 ---
 
-## Iteration 6: Strategy, Permadeath, and Tactical Depth
-*   [DONE] **Advanced Ranged Mechanics:** Obstacles reduce range (-1); Melee penalty for Archers (-50% DMG).
-*   [DONE] **Permadeath:** Units that die in battle are permanently removed from the roster.
-*   [DONE] **Strategic Orders:** Right-click to assign persistent targets/destinations (Red/Blue lines).
-*   [DONE] **Hold Position:** Units act as defensive turrets, picking off closest enemies without moving.
-*   [DONE] **Unified Execution:** "End Turn" triggers all strategic orders and defensive actions.
+## Iteration 8: Professional Art Upgrade & Reward System
+*   [DONE] **8-Directional Units:** Integrated PixelLab sprites for all units.
+*   [DONE] **Reward Overhaul:** Implemented `RewardCard` for recruitment and training post-victory.
+*   [DONE] **Debug Victory:** Added fast-cheat button to main menu for testing.
 
 ---
 
-## Iteration 7: Siege Tactics & Destructible Environments
-*   [DONE] **Veteran Progression:** All survivors automatically promote (+2 HP, +1 DMG) after a stage.
-*   [DONE] **Destructible Terrain:** Forests (2 HP), Walls (8 HP), and Houses (10 HP) can be demolished.
-*   [DONE] **Siege Damage:** Ballistas deal x2 damage to structures (Houses/Walls).
-*   [DONE] **Architectural Generation:** Maps now feature "Wilderness", "Village", or "Boss Castle" biomes.
-*   [DONE] **UI Polish:** Hovering shows Terrain HP; redundant "End Turn" button removed in favor of "Execute Orders".
+## Iteration 9: Victory Screen Statistics (Current)
+*   **Goal:** Provide a thematic visual summary of battle casualties.
+*   [DONE] **Casualty Tracking:** Track killed player and enemy units during the battle in `main.gd`.
+*   [DONE] **Visual Layout:** Create a "Graveyard" view in the Victory screen.
+	*   Player losses on the left, Enemy losses on the right.
+	*   Use the "south-west" sprite for deceased units.
+	*   Arrange units in a mini-hex grid pattern at the center of their respective sides.
+*   [DONE] **Refactor Game Over UI:** Integrate the casualty statistics into the existing Victory popup.
 
 ---
 
-## Iteration 8: Professional Art Upgrade & Animations (Current)
-*   **Goal:** Replace placeholder art with high-quality AI-generated sprites and tiles.
-*   **Tasks:**
-	*   **8-Directional Units:** Generate 8 directional views for all unit types using PixelLab.
-	*   **Animated Actions:** Implement Walk and Attack animations for all units.
-	*   **Environmental Polish:** Replace tiles with seamless textures (Grass, Ruins, Corpses).
-	*   **Refactored Unit Logic:** Update `unit.gd` to handle multi-directional sprites and animation states.
+## Iteration 10: Fog of War, Stealth & Polish (Upcoming)
 
----
-
-## Iteration 9: Fog of War & Stealth (Upcoming)
 *   **Tasks:**
 	*   Implement Fog of War (Hexes hidden until within unit vision range).
 	*   Add "Scout" class or ability to Archers (increased vision).
 	*   Add "Hidden" state for enemies in Forests.
+	*   Final UI Skinning (Parchment/Stone/Wood themes applied repo-wide).
+	*   Walk/Attack animations integration.

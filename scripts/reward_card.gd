@@ -33,14 +33,8 @@ func setup(data: UnitData, action_text: String):
 	]
 	stats_label.text = stats
 	
-	# Load sprite
-	var tex_path = "res://assets/units/%s/rotations/south-west.png" % data.sprite_folder
-	if not FileAccess.file_exists(tex_path):
-		tex_path = "res://assets/units/%s/rotations/south.png" % data.sprite_folder
-	if not FileAccess.file_exists(tex_path):
-		tex_path = "res://assets/units/%s/south.png" % data.sprite_folder
-		
-	var tex = load(tex_path)
+	# Load sprite using centralized logic
+	var tex = data.get_preview_texture()
 	if tex:
 		sprite.texture = tex
 	

@@ -28,6 +28,17 @@ var active_order: Dictionary = {} # {"type": "attack", "target_id": int, "target
 var current_direction: String = "south"
 var current_animation: String = "idle"
 
+func get_preview_texture() -> Texture2D:
+	var tex_path = "res://assets/units/%s/rotations/south-west.png" % sprite_folder
+	if not FileAccess.file_exists(tex_path):
+		tex_path = "res://assets/units/%s/rotations/south.png" % sprite_folder
+	if not FileAccess.file_exists(tex_path):
+		tex_path = "res://assets/units/%s/south.png" % sprite_folder
+	
+	if ResourceLoader.exists(tex_path):
+		return load(tex_path)
+	return null
+
 func upgrade():
 	level += 1
 	max_hp += 2

@@ -42,6 +42,7 @@ var is_targeted: bool = false:
 		if is_node_ready(): _update_visuals()
 
 signal movement_finished
+signal died(unit: Unit)
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -200,6 +201,7 @@ func attack_animation(target_world_pos: Vector2):
 func _die():
 	print(unit_name, " has died.")
 	is_dead = true
+	died.emit(self)
 	
 	# Load corpse sprite dynamically
 	var corpse_path = "res://assets/units/" + data.sprite_folder + "/corpse.png"
