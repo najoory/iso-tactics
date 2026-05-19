@@ -69,3 +69,14 @@
 	*   **Music (Suno AI MCP):** Orchestral tactical themes and menu music.
 	*   **SFX (ElevenLabs/AudioGen):** Unit-specific impact and death sounds.
 	*   **AudioManager:** Centralized Godot singleton for mixing and BGM cross-fading.
+
+---
+
+## Iteration 14: Quality Assurance & Shipment
+*   **Goal:** Global refactoring for testability, performance optimization, and cross-platform deployment.
+*   **Tasks:**
+	*   **Refactoring:** Decouple `main.gd` into modular managers (Grid, Turn, Combat) for isolated unit testing.
+	*   **Test Coverage:** Increase unit test coverage to 85%+.
+	*   **Optimization:** Deep profiling of A* and Rendering to ensure stable 60FPS on target platforms.
+	*   **Multi-Platform Export:** Configure and verify build presets for Linux (.x86_64), Windows (.exe), and Android (.apk).
+	*   **CI/CD Pipeline:** Implement GitHub Actions for automated testing and builds.
