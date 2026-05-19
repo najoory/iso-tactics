@@ -46,13 +46,20 @@
 
 ---
 
-## Iteration 12: Fog of War, Stealth & Polish
-*   **Tasks:**
+## Iteration 12: Fog of War, Stealth & Tactical Polish
+*   **Goal:** Deepen tactical complexity with environment bonuses, stealth mechanics, and improved UI feedback.
+*   **Balance Fixes:**
+	*   **Forest Archer Defense:** Archers in Forest hexes gain +1 Defense for each remaining AP at turn end.
+	*   **Forest Archer Offense:** Archers gain a damage bonus when shooting from Forest to non-Forest hexes.
+	*   **Archer AP Bonus:** Archers gain +1 Damage for each AP carried over from the previous turn.
+*   **UI Pathing:**
+	*   Replace red order lines with hexagon-based path highlighting.
+	*   Highlight path segments beyond current AP range with a gray frame.
+*   **Stealth & Fog:**
 	*   Implement Fog of War (Hexes hidden until within unit vision range).
-	*   Add "Scout" class or ability to Archers (increased vision).
+	*   Add "Scout" class/ability to Archers (increased vision).
 	*   Add "Hidden" state for enemies in Forests.
-	*   Final UI Skinning (Parchment/Stone/Wood themes applied repo-wide).
-	*   Walk/Attack animations integration.
+*   **Final Skinning:** Complete repo-wide UI skinning (Parchment/Stone/Wood) and walk/attack animation integration.
 
 ---
 
