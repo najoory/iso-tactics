@@ -20,19 +20,27 @@
 
 ---
 
-## Iteration 9: Victory Screen Statistics (Current)
+## Iteration 9: Victory Screen Statistics
 *   **Goal:** Provide a thematic visual summary of battle casualties.
 *   [DONE] **Casualty Tracking:** Track killed player and enemy units during the battle in `main.gd`.
 *   [DONE] **Visual Layout:** Create a "Graveyard" view in the Victory screen.
 	*   Player losses on the left, Enemy losses on the right.
-	*   Use the "south-west" sprite for deceased units.
+	*   Use the "corpse" sprite (fallback to desaturated "south-west") for deceased units.
 	*   Arrange units in a mini-hex grid pattern at the center of their respective sides.
 *   [DONE] **Refactor Game Over UI:** Integrate the casualty statistics into the existing Victory popup.
 
 ---
 
-## Iteration 10: Fog of War, Stealth & Polish (Upcoming)
+## Iteration 10: Battlefield UI & Performance
+*   **Goal:** Enhance in-game HUD and optimize launch performance.
+*   [DONE] **Performance Optimization:** Implemented SpriteFrames caching in `Unit.gd`, reducing redundant file I/O and resolving launch-time freezes.
+*   [DONE] **Stage Counter:** Added top-right "Stage X" indicator styled with parchment theme.
+*   [DONE] **Turn Animation:** Implemented animated centered "PLAYER TURN" banner with Tween transitions.
+*   [DONE] **Victory Chance:** Added top-left dynamic victory chance indicator based on proportional unit power.
 
+---
+
+## Iteration 11: Fog of War, Stealth & Polish (Current)
 *   **Tasks:**
 	*   Implement Fog of War (Hexes hidden until within unit vision range).
 	*   Add "Scout" class or ability to Archers (increased vision).

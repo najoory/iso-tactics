@@ -63,6 +63,9 @@ var current_direction: String = "south"
 var current_animation: String = "idle"
 var is_dead: bool = false
 
+# Optimization: Cache SpriteFrames by sprite folder
+static var frames_cache: Dictionary = {}
+
 func _ready():
 	if data:
 		_sync_from_data()
@@ -87,10 +90,17 @@ func _sync_from_data():
 	attack_range = data.attack_range
 
 	if animated_sprite:
+		var folder_name = data.sprite_folder
+		
+		# Use cached frames if available
+		if frames_cache.has(folder_name):
+			animated_sprite.sprite_frames = frames_cache[folder_name]
+			animated_sprite.play("idle_" + current_direction)
+			if sprite: sprite.visible = false
+			return
+
 		var frames = SpriteFrames.new()
 		var dirs = ["south", "south-west", "west", "north-west", "north", "north-east", "east", "south-east"]
-		
-		var folder_name = data.sprite_folder
 		var base_path = "res://assets/units/" + folder_name + "/rotations/"
 		var has_frames = false
 		
@@ -99,11 +109,6 @@ func _sync_from_data():
 			var tex = null
 			if ResourceLoader.exists(tex_path):
 				tex = load(tex_path)
-			else:
-				var global_path = ProjectSettings.globalize_path(tex_path)
-				if FileAccess.file_exists(global_path):
-					var img = Image.load_from_file(global_path)
-					if img: tex = ImageTexture.create_from_image(img)
 			
 			if tex:
 				frames.add_animation("idle_" + d)
@@ -115,6 +120,7 @@ func _sync_from_data():
 				has_frames = true
 		
 		if has_frames:
+			frames_cache[folder_name] = frames
 			animated_sprite.sprite_frames = frames
 			animated_sprite.play("idle_" + current_direction)
 			if sprite: sprite.visible = false

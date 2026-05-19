@@ -17,6 +17,11 @@ var bg_layer: TileMapLayer
 @onready var reward_container: HBoxContainer = $CanvasLayer/GameOver/Rewards
 @onready var combat_tip: Label = $CanvasLayer/UI/CombatTip
 
+var stage_label: Label
+var victory_chance_label: Label
+var turn_banner: PanelContainer
+var turn_banner_label: Label
+
 var siege_panel: ColorRect
 var retreat_panel: ColorRect
 var vignette_overlay: ColorRect
@@ -98,12 +103,17 @@ void fragment() {
 	
 	_style_tooltip()
 	_style_game_over()
+	_setup_battlefield_hud()
 	
 	if CampaignState.current_stage % 5 == 0:
 		_trigger_siege_event()
 	
 	_update_ui()
 	_center_camera()
+	
+	# Initial turn animation
+	call_deferred("animate_turn_transition", "PLAYER TURN")
+	
 	if CampaignState.has_meta("debug_victory_requested") and CampaignState.get_meta("debug_victory_requested"):
 		CampaignState.set_meta("debug_victory_requested", false)
 		call_deferred("_show_game_over", "VICTORY")
@@ -333,6 +343,95 @@ func _on_retreat_confirmed():
 	CampaignState.retreat()
 	get_tree().reload_current_scene()
 
+func _setup_battlefield_hud():
+	var parch_tex = load("res://assets/ui/parchment_clean.png")
+	var sb = StyleBoxTexture.new()
+	if parch_tex:
+		sb.texture = parch_tex
+		sb.texture_margin_left = 15
+		sb.texture_margin_right = 15
+		sb.texture_margin_top = 10
+		sb.texture_margin_bottom = 10
+
+	# 1. Stage Counter (Top Right)
+	var stage_panel = PanelContainer.new()
+	stage_panel.add_theme_stylebox_override("panel", sb)
+	$CanvasLayer/UI.add_child(stage_panel)
+	stage_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	stage_panel.offset_left = -180
+	stage_panel.offset_right = -20
+	stage_panel.offset_top = 20
+	stage_panel.offset_bottom = 70
+	
+	stage_label = Label.new()
+	stage_label.add_theme_color_override("font_color", Color.BLACK)
+	stage_label.add_theme_font_size_override("font_size", 20)
+	stage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stage_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	stage_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stage_panel.add_child(stage_label)
+
+	# 2. Victory Chance (Top Left)
+	var victory_panel = PanelContainer.new()
+	victory_panel.add_theme_stylebox_override("panel", sb)
+	$CanvasLayer/UI.add_child(victory_panel)
+	victory_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	victory_panel.offset_left = 20
+	victory_panel.offset_right = 260
+	victory_panel.offset_top = 20
+	victory_panel.offset_bottom = 70
+	
+	victory_chance_label = Label.new()
+	victory_chance_label.add_theme_color_override("font_color", Color.BLACK)
+	victory_chance_label.add_theme_font_size_override("font_size", 20)
+	victory_chance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	victory_chance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	victory_chance_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	victory_panel.add_child(victory_chance_label)
+
+	# 3. Turn Banner (Center)
+	turn_banner = PanelContainer.new()
+	var banner_sb = sb.duplicate()
+	banner_sb.modulate_color = Color(1.1, 1.1, 1.1, 0.95)
+	turn_banner.add_theme_stylebox_override("panel", banner_sb)
+	$CanvasLayer/UI.add_child(turn_banner)
+	turn_banner.set_anchors_preset(Control.PRESET_CENTER)
+	turn_banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	turn_banner.grow_vertical = Control.GROW_DIRECTION_BOTH
+	turn_banner.custom_minimum_size = Vector2(400, 100)
+	turn_banner.pivot_offset = Vector2(200, 50) # Half of custom_min_size
+	turn_banner.modulate.a = 0
+	turn_banner.scale = Vector2(0.5, 0.5)
+	turn_banner.visible = false
+	
+	turn_banner_label = Label.new()
+	turn_banner_label.add_theme_color_override("font_color", Color.BLACK)
+	turn_banner_label.add_theme_font_size_override("font_size", 42)
+	turn_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	turn_banner.add_child(turn_banner_label)
+	
+	# Hide the static turn label since we have the banner and stage counter
+	turn_label.visible = false
+
+func animate_turn_transition(text: String):
+	turn_banner_label.text = text
+	turn_banner.visible = true
+	var tween = create_tween().set_parallel(false)
+	
+	# Fade in and scale up
+	tween.tween_property(turn_banner, "modulate:a", 1.0, 0.3).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(turn_banner, "scale", Vector2(1.1, 1.1), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# Hold
+	tween.tween_interval(1.2)
+	
+	# Fade out
+	tween.tween_property(turn_banner, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(turn_banner, "scale", Vector2(0.8, 0.8), 0.4)
+	
+	await tween.finished
+	turn_banner.visible = false
+
 func _on_reward_selected(type: String):
 	if type == "knight": CampaignState.add_knight()
 	elif type == "archer": CampaignState.add_archer()
@@ -451,12 +550,35 @@ func _update_tooltip_and_tips():
 		combat_tip.visible = false
 
 func _update_ui():
+	if stage_label:
+		stage_label.text = "STAGE " + str(CampaignState.current_stage)
+	
+	if victory_chance_label:
+		var chance = _calculate_victory_chance() * 100.0
+		victory_chance_label.text = "VICTORY CHANCE: %d%%" % int(chance)
+
 	if current_turn == Turn.PLAYER:
-		turn_label.text = "PLAYER TURN (Stage " + str(CampaignState.current_stage) + ")"
+		turn_label.text = "PLAYER TURN"
 		execute_orders_button.disabled = false
 	else:
 		turn_label.text = "ENEMY TURN"
 		execute_orders_button.disabled = true
+
+func _calculate_victory_chance() -> float:
+	var player_power = 0.0
+	var enemy_power = 0.0
+	
+	for unit in units.values():
+		if not is_instance_valid(unit) or unit.is_dead: continue
+		# Power: HP ratio * DMG * Mobility (AP)
+		var power = (float(unit.current_hp) / unit.max_hp) * unit.attack_damage * unit.max_ap
+		if unit.team == "Player":
+			player_power += power
+		else:
+			enemy_power += power
+			
+	if player_power + enemy_power == 0: return 0.0
+	return player_power / (player_power + enemy_power)
 
 func _setup_astar():
 	astar = AStar2D.new()
@@ -513,26 +635,26 @@ func _setup_astar():
 			if terrain == Terrain.FOREST:
 				astar.set_point_weight_scale(id, 2.0)
 				terrain_hp[coords] = 2
-			elif terrain == Terrain.MOUNTAIN:
+			elif terrain == Terrain.MOUNTAIN or terrain == Terrain.HOUSE or \
+				 terrain == Terrain.WALL or terrain == Terrain.CASTLE:
 				astar.set_point_disabled(id, true)
-			elif terrain == Terrain.HOUSE:
-				astar.set_point_disabled(id, true)
-				terrain_hp[coords] = 10
-			elif terrain == Terrain.WALL:
-				astar.set_point_disabled(id, true)
-				terrain_hp[coords] = 8
-			elif terrain == Terrain.CASTLE:
-				astar.set_point_disabled(id, true)
-				terrain_hp[coords] = 20
+				if terrain == Terrain.HOUSE: terrain_hp[coords] = 10
+				elif terrain == Terrain.WALL: terrain_hp[coords] = 8
+				elif terrain == Terrain.CASTLE: terrain_hp[coords] = 20
 
+	# Optimized Connection Pass
 	for x in range(grid_size.x):
 		for y in range(grid_size.y):
 			var coords = Vector2i(x, y)
-			if astar.is_point_disabled(_get_id(coords)): continue
+			var id = _get_id(coords)
+			if astar.is_point_disabled(id): continue
+			
 			for n in tile_map.get_surrounding_cells(coords):
-				if n.x >= 0 and n.x < grid_size.x and n.y >= 0 and n.y < grid_size.y:
-					if not astar.is_point_disabled(_get_id(n)):
-						astar.connect_points(_get_id(coords), _get_id(n))
+				var nid = _get_id(n)
+				# Only connect to valid neighbors with higher IDs to avoid double connections
+				if nid > id and n.x >= 0 and n.x < grid_size.x and n.y >= 0 and n.y < grid_size.y:
+					if not astar.is_point_disabled(nid):
+						astar.connect_points(id, nid)
 
 func _get_id(coords: Vector2i) -> int:
 	var cx = clamp(coords.x, 0, grid_size.x - 1)
@@ -1101,10 +1223,12 @@ func _switch_turn():
 	if current_turn == Turn.PLAYER:
 		current_turn = Turn.ENEMY
 		_update_ui()
+		await animate_turn_transition("ENEMY TURN")
 		_handle_enemy_turn()
 	else:
 		current_turn = Turn.PLAYER
 		_update_ui()
+		await animate_turn_transition("PLAYER TURN")
 		_reset_units_ap("Player")
 	_draw_all_order_indicators()
 
