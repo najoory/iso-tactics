@@ -398,7 +398,7 @@ func _setup_battlefield_hud():
 	banner_sb.modulate_color = Color(0.2, 0.4, 0.2, 0.7)
 	turn_banner.add_theme_stylebox_override("panel", banner_sb)
 	$CanvasLayer/UI.add_child(turn_banner)
-	turn_banner.set_anchors_preset(Control.PRESET_TOP_CENTER)
+	turn_banner.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	turn_banner.offset_left = -250
 	turn_banner.offset_right = 250
 	turn_banner.offset_top = 100
