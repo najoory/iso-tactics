@@ -348,24 +348,24 @@ func _setup_battlefield_hud():
 	var sb = StyleBoxTexture.new()
 	if parch_tex:
 		sb.texture = parch_tex
-		sb.texture_margin_left = 15
-		sb.texture_margin_right = 15
-		sb.texture_margin_top = 10
-		sb.texture_margin_bottom = 10
+		sb.texture_margin_left = 40
+		sb.texture_margin_right = 40
+		sb.texture_margin_top = 35
+		sb.texture_margin_bottom = 35
 
 	# 1. Stage Counter (Top Right)
 	var stage_panel = PanelContainer.new()
 	stage_panel.add_theme_stylebox_override("panel", sb)
 	$CanvasLayer/UI.add_child(stage_panel)
 	stage_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	stage_panel.offset_left = -180
+	stage_panel.offset_left = -220
 	stage_panel.offset_right = -20
 	stage_panel.offset_top = 20
-	stage_panel.offset_bottom = 70
+	stage_panel.offset_bottom = 90
 	
 	stage_label = Label.new()
 	stage_label.add_theme_color_override("font_color", Color.BLACK)
-	stage_label.add_theme_font_size_override("font_size", 20)
+	stage_label.add_theme_font_size_override("font_size", 22)
 	stage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stage_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	stage_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -377,13 +377,13 @@ func _setup_battlefield_hud():
 	$CanvasLayer/UI.add_child(victory_panel)
 	victory_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	victory_panel.offset_left = 20
-	victory_panel.offset_right = 260
+	victory_panel.offset_right = 300
 	victory_panel.offset_top = 20
-	victory_panel.offset_bottom = 70
+	victory_panel.offset_bottom = 90
 	
 	victory_chance_label = Label.new()
 	victory_chance_label.add_theme_color_override("font_color", Color.BLACK)
-	victory_chance_label.add_theme_font_size_override("font_size", 20)
+	victory_chance_label.add_theme_font_size_override("font_size", 22)
 	victory_chance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	victory_chance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	victory_chance_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
