@@ -329,8 +329,6 @@ func _setup_dynamic_ui():
 	start_btn.add_theme_stylebox_override("hover", sb_hover)
 	start_btn.add_theme_font_size_override("font_size", 24)
 
-func _on_main_menu_pressed():
-
 	retreat_panel = ColorRect.new()
 	retreat_panel.color = Color(0, 0, 0, 0.8)
 	retreat_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -362,7 +360,7 @@ func _on_main_menu_pressed():
 	ret_cancel.pressed.connect(func(): retreat_panel.visible = false)
 
 	# Style buttons in panels
-	for btn in [siege_go_btn, ret_confirm, ret_cancel]:
+	for btn in [start_btn, ret_confirm, ret_cancel]:
 		btn.add_theme_stylebox_override("normal", sb)
 		btn.add_theme_stylebox_override("hover", sb_hover)
 		btn.add_theme_color_override("font_color", Color.WHITE)
