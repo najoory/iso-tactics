@@ -1,0 +1,189 @@
+{
+  "siege": {
+    "name": "Castle Siege",
+    "phrases": [
+      "The iron walls stand before us. Breach the gates!",
+      "A fortress of evil. It falls today!",
+      "They think their stone hides will save them. They're wrong.",
+      "Bring up the heavy hardware. We're going in!",
+      "The castle looms. Steel your hearts!",
+      "No wall is too high for a determined soul.",
+      "Break the defenses, end the reign.",
+      "Silence the cannons and take the keep!",
+      "The siege begins. Leave nothing standing!",
+      "One last gate between us and victory."
+    ],
+    "spawn_weights": { "Orc Brute": 0.6, "Orc Ballista": 0.4 },
+    "terrain_mod": "siege_walls"
+  },
+  "ambush": {
+    "name": "Shadow Ambush",
+    "phrases": [
+      "Quiet... the air is too still. THE SHADOWS ARE MOVING!",
+      "Wait... where did the birds go?",
+      "I smell cold steel and regret. Ambush!",
+      "The shadows just blinked. WATCH OUT!",
+      "Eyes up! They're coming from the treeline!",
+      "A trap! Form a circle!",
+      "They were waiting for us. MAKE THEM REGRET IT!",
+      "Darkness strikes from all sides!",
+      "Don't let them isolate you!",
+      "The void has teeth. Stay sharp!"
+    ],
+    "spawn_weights": { "Shadow Assassin": 0.7, "Orc Archer": 0.3 },
+    "terrain_mod": "forest_dense"
+  },
+  "horde": {
+    "name": "Orc Warband",
+    "phrases": [
+      "The ground shakes. A massive horde approaches!",
+      "Too many... there are just too many!",
+      "They're coming in waves! HOLD THE LINE!",
+      "A green tide is rising. Don't drown!",
+      "Their drums... they're calling for blood.",
+      "More goblins than I have arrows!",
+      "Brace yourselves! The swarm is here!",
+      "They aren't smart, but they are many.",
+      "Hack and slash until none are left!",
+      "A warband of monsters. Let's thin the herd."
+    ],
+    "spawn_weights": { "Goblin": 0.6, "Orc Brute": 0.3, "Orc Archer": 0.1 },
+    "terrain_mod": "open_field"
+  },
+  "pass": {
+    "name": "Mountain Pass",
+    "phrases": [
+      "Watch the heights! They've got us pinned in the pass.",
+      "One way in, one way out. And they're in the way.",
+      "Rocks above, Orcs ahead. Not a great day.",
+      "The mountain air is thin, and the steel is cold.",
+      "Narrow path, dangerous enemies. Keep moving!",
+      "Don't let them push us off the edge!",
+      "Heights favor the archers. Find cover!",
+      "The pass is guarded. We break through or we die here.",
+      "Climb and conquer!",
+      "A tactical nightmare. Let's make it their nightmare."
+    ],
+    "spawn_weights": { "Orc Archer": 0.6, "Orc Brute": 0.4 },
+    "terrain_mod": "mountain_corridor"
+  },
+  "village": {
+    "name": "Village Defense",
+    "phrases": [
+      "The villagers are fleeing! Hold the line at the cottages!",
+      "Smoke on the horizon. The village is under attack!",
+      "Protect the homes! Drive them back into the dirt!",
+      "They're looting the stores! NOT ON MY WATCH!",
+      "Street to street, house to house. Clear them out!",
+      "The innocent depend on us. Don't fail them.",
+      "Save the village, earn your keep.",
+      "They're burning the thatch! Put them out!",
+      "Evacuate the children! We'll handle the green-skins.",
+      "A peaceful place turned into a slaughterhouse. End it."
+    ],
+    "spawn_weights": { "Orc Brute": 0.4, "Goblin": 0.4, "Orc Archer": 0.2 },
+    "terrain_mod": "village_layout"
+  },
+  "forest": {
+    "name": "Cursed Forest",
+    "phrases": [
+      "The woods are alive... and they're angry. Stay together!",
+      "Don't lose sight of each other. The mist is thickening.",
+      "Something is watching us from the ancient oaks.",
+      "Cursed trees and cold steel. Welcome to the forest.",
+      "I hear whispers in the leaves. They aren't friendly.",
+      "The forest floor is soaked in old blood.",
+      "Woodland spirits? No, just angry insurgents.",
+      "Tread carefully. The roots have eyes.",
+      "Shadows grow long in the deep woods.",
+      "The green silence is deafening."
+    ],
+    "spawn_weights": { "Insurgent": 0.5, "Insurgent Archer": 0.5 },
+    "terrain_mod": "forest_overgrown"
+  },
+  "river": {
+    "name": "River Crossing",
+    "phrases": [
+      "The only way forward is across the water. Push through!",
+      "Watch the current! And the incoming fire!",
+      "Wet boots and bloody steel. The crossing begins!",
+      "They've got ballistae on the far bank! TAKE COVER!",
+      "Don't get bogged down in the shallows!",
+      "The river runs red today.",
+      "Hold the bridge! Don't let them flank us!",
+      "A tactical bottleneck. Move fast or get pinned!",
+      "Water is the enemy's shield. Break it.",
+      "Cross the stream, win the day."
+    ],
+    "spawn_weights": { "Orc Ballista": 0.3, "Orc Archer": 0.5, "Orc Brute": 0.2 },
+    "terrain_mod": "river_divide"
+  },
+  "cave": {
+    "name": "Cave Outbreak",
+    "phrases": [
+      "They're pouring out of the deep dark! Brace for impact!",
+      "Cave-ins and Orc-ins. What a combination.",
+      "I hear heavy breathing from the tunnels.",
+      "Stale air and sharp blades. Welcome to the caves.",
+      "Don't get lost in the dark. They know the way better than us.",
+      "The mountain spits out its filth!",
+      "Echoes of steel on stone. The hunt is on.",
+      "Watch the ceiling! And your back!",
+      "A subterranean slaughter. Let's get to work.",
+      "The deep dark is hungry today."
+    ],
+    "spawn_weights": { "Orc Brute": 0.7, "Goblin": 0.3 },
+    "terrain_mod": "cave_entrance"
+  },
+  "ruins": {
+    "name": "Dead Man's Ruins",
+    "phrases": [
+      "Scavengers pick through the bones. Clear them out!",
+      "Ancient glory, modern graves.",
+      "The ghosts of the past are joined by the corpses of the present.",
+      "Crumbling stone provides excellent cover. Use it.",
+      "This place was beautiful once. Now it's a tomb.",
+      "Dust and death. Keep your eyes peeled.",
+      "Ruined arches, ruined lives.",
+      "Clear the rubble, find the enemy.",
+      "The history here is written in blood.",
+      "Resting place of kings? Now it's just a killing field."
+    ],
+    "spawn_weights": { "Insurgent": 0.4, "Shadow Assassin": 0.3, "Insurgent Archer": 0.3 },
+    "terrain_mod": "ruins_heavy"
+  },
+  "hunt": {
+    "name": "Elite Hunt",
+    "phrases": [
+      "A high-ranking officer is spotted. Take his head!",
+      "Target acquired. Ignore the fodder, kill the leader!",
+      "The head of the snake is right there. Cut it off!",
+      "One death today matters more than all the rest.",
+      "Don't let the elite escape! Pursuit mode!",
+      "They've got a champion. Let's show them ours.",
+      "The hunt is on. Your trophy is waiting.",
+      "Precision strikes only. Focus on the target!",
+      "A high-value kill. Earn your bonus!",
+      "The boss is here. End his command."
+    ],
+    "spawn_weights": { "Orc Overlord": 1.0, "Orc Brute": 0.5 },
+    "terrain_mod": "open_field"
+  },
+  "maze": {
+    "name": "Orc Maze",
+    "phrases": [
+      "A labyrinth of stone and stench. The Overlord waits at the center!",
+      "I hear heavy breathing... and it smells like bad breath.",
+      "A labyrinth of death. Watch every corner!",
+      "The Overlord is watching us. I can feel it.",
+      "Don't get separated in these corridors!",
+      "Every turn could be your last. Stay together!",
+      "The maze is a puzzle. The solution is violence.",
+      "They built this to trap us. Let's break the walls!",
+      "Stench of rot and stone. We're close.",
+      "Lost in the dark? Follow the sound of dying orcs."
+    ],
+    "spawn_weights": { "Orc Overlord": 1.0, "Orc Brute": 0.4, "Orc Archer": 0.2 },
+    "terrain_mod": "maze_walls"
+  }
+}

@@ -22,9 +22,14 @@ var victory_chance_label: Label
 var turn_banner: PanelContainer
 var turn_banner_label: Label
 
-var siege_panel: ColorRect
+var intro_panel: ColorRect
+var intro_title: Label
+var intro_phrase: Label
 var retreat_panel: ColorRect
 var vignette_overlay: ColorRect
+
+var scenario_config: Dictionary = {}
+var current_scenario: String = "open_field"
 
 var unit_scene = preload("res://scenes/unit.tscn")
 var units: Dictionary = {} # grid_pos -> Unit
@@ -47,6 +52,8 @@ var enemy_casualties: Array[UnitData] = []
 func _ready():
 	player_casualties = []
 	enemy_casualties = []
+	_load_scenarios()
+	_pick_scenario()
 	
 	# Create BackgroundLayer dynamically
 	if not has_node("BackgroundLayer"):
@@ -105,33 +112,40 @@ void fragment() {
 	_style_game_over()
 	_setup_battlefield_hud()
 	
-	if CampaignState.current_stage % 5 == 0:
-		_trigger_siege_event()
-	
+	_trigger_level_intro()
 	_update_ui()
 	_center_camera()
-	
-	_reset_units_ap("Player")
-	
-	# Initial turn animation
-	call_deferred("animate_turn_transition", "PLAYER TURN")
 	
 	if CampaignState.has_meta("debug_victory_requested") and CampaignState.get_meta("debug_victory_requested"):
 		CampaignState.set_meta("debug_victory_requested", false)
 		call_deferred("_show_game_over", "VICTORY")
 
-func _trigger_siege_event():
-	siege_panel.visible = true
+func _trigger_level_intro():
+	intro_panel.visible = true
+	var stage = CampaignState.current_stage
+	intro_title.text = "STAGE " + str(stage)
 	
-	# Give free ballista ONLY ONCE per siege stage
-	if CampaignState.current_stage > CampaignState.last_siege_reinforcement_stage:
-		CampaignState.add_ballista()
-		CampaignState.last_siege_reinforcement_stage = CampaignState.current_stage
-		# Spawn it immediately
-		var data = CampaignState.player_roster.back()
-		data.restore_stats()
-		_create_unit_from_data(Vector2i(2, randi_range(3, 7)), data)
-		CampaignState.save_game()
+	var config = scenario_config.get(current_scenario, {})
+	var phrases = config.get("phrases", ["Brace yourselves!"])
+	var phrase = phrases.pick_random()
+	
+	if current_scenario == "siege":
+		phrase += "\n\n(Siege Reinforcements Granted: Free Ballista!)"
+		# Reward logic
+		if stage > CampaignState.last_siege_reinforcement_stage:
+			CampaignState.add_ballista()
+			CampaignState.last_siege_reinforcement_stage = stage
+			var data = CampaignState.player_roster.back()
+			data.restore_stats()
+			_create_unit_from_data(Vector2i(2, randi_range(3, 7)), data)
+			CampaignState.save_game()
+	
+	intro_phrase.text = phrase
+
+func _on_intro_close_pressed():
+	intro_panel.visible = false
+	_reset_units_ap("Player")
+	animate_turn_transition("PLAYER TURN")
 
 func _center_camera():
 	var center_pos = tile_map.map_to_local(grid_size / 2)
@@ -266,38 +280,57 @@ func _setup_dynamic_ui():
 	retreat_btn.add_theme_stylebox_override("hover", sb_hover)
 	retreat_btn.custom_minimum_size = Vector2(160, 50)
 
-	# Siege Panel Setup
-	siege_panel = ColorRect.new()
-	siege_panel.color = Color(0, 0, 0, 0.8)
-	siege_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	siege_panel.visible = false
-	$CanvasLayer.add_child(siege_panel)
+	# Level Intro Panel Setup
+	intro_panel = ColorRect.new()
+	intro_panel.color = Color(0, 0, 0, 0.85)
+	intro_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	intro_panel.visible = false
+	$CanvasLayer.add_child(intro_panel)
 
-	var siege_vbox = VBoxContainer.new()
-	siege_vbox.set_anchors_preset(Control.PRESET_CENTER)
-	siege_vbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	siege_vbox.grow_vertical = Control.GROW_DIRECTION_BOTH
-	siege_panel.add_child(siege_vbox)
+	var intro_vbox = VBoxContainer.new()
+	intro_vbox.set_anchors_preset(Control.PRESET_CENTER)
+	intro_vbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	intro_vbox.grow_vertical = Control.GROW_DIRECTION_BOTH
+	intro_vbox.custom_minimum_size = Vector2(600, 400)
+	intro_panel.add_child(intro_vbox)
+	
+	intro_title = Label.new()
+	intro_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intro_title.add_theme_font_size_override("font_size", 48)
+	intro_title.add_theme_color_override("font_shadow_color", Color.BLACK)
+	intro_title.add_theme_constant_override("shadow_offset_x", 4)
+	intro_title.add_theme_constant_override("shadow_offset_y", 4)
+	intro_vbox.add_child(intro_title)
+	
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 40)
+	intro_vbox.add_child(spacer)
+	
+	intro_phrase = Label.new()
+	intro_phrase.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intro_phrase.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	intro_phrase.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro_phrase.add_theme_font_size_override("font_size", 24)
+	intro_phrase.add_theme_color_override("font_color", Color(0.9, 0.9, 0.8))
+	intro_phrase.custom_minimum_size = Vector2(550, 100)
+	intro_vbox.add_child(intro_phrase)
+	
+	var spacer2 = Control.new()
+	spacer2.custom_minimum_size = Vector2(0, 60)
+	intro_vbox.add_child(spacer2)
+	
+	var start_btn = Button.new()
+	start_btn.text = "TO BATTLE!"
+	start_btn.custom_minimum_size = Vector2(250, 60)
+	intro_vbox.add_child(start_btn)
+	start_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	start_btn.pressed.connect(_on_intro_close_pressed)
+	start_btn.add_theme_stylebox_override("normal", sb)
+	start_btn.add_theme_stylebox_override("hover", sb_hover)
+	start_btn.add_theme_font_size_override("font_size", 24)
 
-	var siege_title = Label.new()
-	siege_title.text = "SIEGE EVENT!"
-	siege_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	siege_title.add_theme_font_size_override("font_size", 48)
-	siege_vbox.add_child(siege_title)
+func _on_main_menu_pressed():
 
-	var siege_warning = Label.new()
-	siege_warning.text = "WARNING: You need a Ballista to destroy walls\nand pass this level!"
-	siege_warning.modulate = Color.YELLOW
-	siege_warning.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	siege_vbox.add_child(siege_warning)
-
-	var siege_go_btn = Button.new()
-	siege_go_btn.text = "TO BATTLE!"
-	siege_go_btn.custom_minimum_size = Vector2(200, 60)
-	siege_vbox.add_child(siege_go_btn)
-	siege_go_btn.pressed.connect(func(): siege_panel.visible = false)
-
-	# Retreat Panel Setup
 	retreat_panel = ColorRect.new()
 	retreat_panel.color = Color(0, 0, 0, 0.8)
 	retreat_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -344,6 +377,33 @@ func _on_retreat_pressed():
 func _on_retreat_confirmed():
 	CampaignState.retreat()
 	get_tree().reload_current_scene()
+
+func _load_scenarios():
+	var path = "res://config/scenarios.json"
+	if FileAccess.file_exists(path):
+		var file = FileAccess.open(path, FileAccess.READ)
+		scenario_config = JSON.parse_string(file.get_as_text())
+		if not scenario_config:
+			print("Error parsing scenarios.json")
+			scenario_config = {}
+
+func _pick_scenario():
+	var stage = CampaignState.current_stage
+	if stage % 5 == 0:
+		current_scenario = "siege"
+	elif stage > 10 and randf() < 0.2:
+		current_scenario = "maze"
+	elif not scenario_config.is_empty():
+		var keys = scenario_config.keys()
+		# Filter out siege and maze for random pools if needed, 
+		# but for now we'll just pick anything other than siege/maze unless conditions met
+		keys.erase("siege")
+		keys.erase("maze")
+		current_scenario = keys.pick_random()
+	else:
+		current_scenario = "open_field"
+	
+	print("Current Scenario: ", current_scenario)
 
 func _setup_battlefield_hud():
 	var parch_tex = load("res://assets/ui/parchment_clean.png")
@@ -615,49 +675,66 @@ func _calculate_victory_chance() -> float:
 
 func _setup_astar():
 	astar = AStar2D.new()
-	terrain_hp.clear()
-	var stage = CampaignState.current_stage
-	var biome = "Wilderness"
-	if (randi() % 100) < 30: biome = "Village"
-	if stage % 5 == 0: biome = "Castle"
 	
+	# Clear and re-populate grid_data based on scenario
+	grid_data.clear()
+	terrain_hp.clear()
+	
+	var config = scenario_config.get(current_scenario, {})
+	var terrain_mod = config.get("terrain_mod", "open_field")
+	
+	# Initial Base Terrain
 	for x in range(grid_size.x):
 		for y in range(grid_size.y):
-			var coords = Vector2i(x, y)
-			var terrain = Terrain.GRASS
+			grid_data[Vector2i(x, y)] = Terrain.GRASS
 			
-			if biome == "Wilderness":
-				if (randi() % 100) < 15: terrain = Terrain.FOREST
-				if (randi() % 100) < 5: terrain = Terrain.MOUNTAIN
-			elif biome == "Castle":
-				var center = Vector2(grid_size) / 2.0
-				var dist_to_center = (Vector2(coords) - center).length()
-				if dist_to_center > 4 and dist_to_center < 6: terrain = Terrain.WALL
-				if dist_to_center < 1.5: terrain = Terrain.CASTLE
-				elif dist_to_center < 3 and (x+y)%3 == 0: terrain = Terrain.HOUSE
-			
-			grid_data[coords] = terrain
+	# Apply Terrain Modifiers
+	match terrain_mod:
+		"maze_walls":
+			_generate_maze()
+		"siege_walls":
+			var wall_x = floor(grid_size.x * 0.6)
+			for y in range(grid_size.y):
+				if y != grid_size.y / 2:
+					grid_data[Vector2i(wall_x, y)] = Terrain.WALL
+				else:
+					grid_data[Vector2i(wall_x, y)] = Terrain.RUIN
+			for x in range(wall_x + 1, grid_size.x):
+				for y in range(grid_size.y):
+					grid_data[Vector2i(x, y)] = Terrain.CASTLE
+		"forest_dense":
+			for pos in grid_data:
+				if randf() < 0.25: grid_data[pos] = Terrain.FOREST
+		"forest_overgrown":
+			for pos in grid_data:
+				if randf() < 0.45: grid_data[pos] = Terrain.FOREST
+		"river_divide":
+			var river_x = grid_size.x / 2
+			for y in range(grid_size.y):
+				if abs(y - grid_size.y / 2) > 1:
+					grid_data[Vector2i(river_x, y)] = Terrain.WATER
+				else:
+					grid_data[Vector2i(river_x, y)] = Terrain.RUIN
+		"mountain_corridor":
+			for y in [0, 1, grid_size.y - 1, grid_size.y - 2]:
+				for x in range(grid_size.x):
+					grid_data[Vector2i(x, y)] = Terrain.MOUNTAIN
+		"village_layout":
+			for i in range(12):
+				var pos = Vector2i(randi() % grid_size.x, randi() % grid_size.y)
+				grid_data[pos] = Terrain.HOUSE
+		"cave_entrance":
+			var center = grid_size / 2
+			for x in range(center.x, grid_size.x):
+				for y in range(grid_size.y):
+					var dist = _get_hex_distance(center + Vector2i(4, 0), Vector2i(x, y))
+					if dist < 4: grid_data[Vector2i(x, y)] = Terrain.MOUNTAIN
+			grid_data[center + Vector2i(4, 0)] = Terrain.RUIN # Entrance proxy
+		"ruins_heavy":
+			for pos in grid_data:
+				if randf() < 0.15: grid_data[pos] = Terrain.RUIN
 
-	if biome == "Village":
-		# Create a few house clusters with surrounding walls
-		for c in range(randi_range(1, 2)):
-			var cluster_center = Vector2i(randi_range(4, grid_size.x - 5), randi_range(4, grid_size.y - 5))
-			for x in range(cluster_center.x - 3, cluster_center.x + 4):
-				for y in range(cluster_center.y - 3, cluster_center.y + 4):
-					var pos = Vector2i(x, y)
-					if grid_data.has(pos):
-						var dist = _get_hex_distance(cluster_center, pos)
-						if dist <= 1:
-							if randi() % 100 < 80: grid_data[pos] = Terrain.HOUSE
-						elif dist == 2:
-							if grid_data[pos] == Terrain.GRASS and randi() % 100 < 85:
-								grid_data[pos] = Terrain.WALL
-		
-		# Add some random forests
-		for pos in grid_data:
-			if grid_data[pos] == Terrain.GRASS and randi() % 100 < 8:
-				grid_data[pos] = Terrain.FOREST
-
+	# Register points in AStar
 	for x in range(grid_size.x):
 		for y in range(grid_size.y):
 			var coords = Vector2i(x, y)
@@ -688,6 +765,42 @@ func _setup_astar():
 				if nid > id and n.x >= 0 and n.x < grid_size.x and n.y >= 0 and n.y < grid_size.y:
 					if not astar.is_point_disabled(nid):
 						astar.connect_points(id, nid)
+
+func _generate_maze():
+	# Fill with walls first
+	for x in range(grid_size.x):
+		for y in range(grid_size.y):
+			grid_data[Vector2i(x, y)] = Terrain.WALL
+			
+	# Recursive backtracker (simplified for hex)
+	var start = Vector2i(1, grid_size.y / 2)
+	var stack = [start]
+	var visited = {start: true}
+	grid_data[start] = Terrain.GRASS
+	
+	while not stack.is_empty():
+		var current = stack.back()
+		var neighbors = []
+		for n in tile_map.get_surrounding_cells(current):
+			if n.x > 0 and n.x < grid_size.x - 1 and n.y > 0 and n.y < grid_size.y - 1:
+				if not visited.has(n):
+					# Check how many grass neighbors it has to keep corridors tight
+					var grass_neighbors = 0
+					for nn in tile_map.get_surrounding_cells(n):
+						if grid_data.get(nn) == Terrain.GRASS: grass_neighbors += 1
+					if grass_neighbors <= 1:
+						neighbors.append(n)
+		
+		if not neighbors.is_empty():
+			var next = neighbors.pick_random()
+			visited[next] = true
+			grid_data[next] = Terrain.GRASS
+			stack.append(next)
+		else:
+			stack.pop_back()
+	
+	# Ensure some open spots for units
+	grid_data[Vector2i(grid_size.x - 2, grid_size.y / 2)] = Terrain.GRASS
 
 func _get_id(coords: Vector2i) -> int:
 	var cx = clamp(coords.x, 0, grid_size.x - 1)
@@ -761,65 +874,68 @@ func _spawn_units():
 	units.clear()
 	units_by_id.clear()
 
-	
 	var stage = CampaignState.current_stage
-	var is_castle_stage = (stage % 5 == 0)
 	
-	# Spawn Player on the LEFT half (strictly scan LEFT)
-	var max_player_x = floor(grid_size.x / 2.0) - 1
-	if is_castle_stage:
-		max_player_x = floor(grid_size.x / 3.0) # Even further left during sieges
-	
+	# Spawn Player on the LEFT half
+	var max_player_x = floor(grid_size.x / 2.0) - 2
 	for d in CampaignState.player_roster:
 		d.restore_stats()
 		d.active_order = {}
-		_create_unit_from_data(Vector2i(randi_range(1, max_player_x), randi_range(2, 8)), d)
+		_create_unit_from_data(Vector2i(randi_range(1, max_player_x), randi_range(2, grid_size.y - 3)), d)
 	
 	CampaignState.save_game()
 	
-	if is_castle_stage:
-		# BOSS STAGE: Defenders inside the castle
-		var castle_spots = []
-		for pos in grid_data:
-			if grid_data[pos] == Terrain.CASTLE:
-				castle_spots.append(pos)
+	var config = scenario_config.get(current_scenario, {})
+	var weights = config.get("spawn_weights", {"Goblin": 1.0})
+	
+	# Scaling enemy count
+	var count_factor = 1.8 if stage <= 5 else 1.4
+	var enemy_count = 3 + floor(stage / count_factor)
+	
+	# Boss Spawning
+	if current_scenario in ["siege", "maze", "hunt"]:
+		var boss_class = "Orc Overlord"
+		if current_scenario == "siege": boss_class = "Orc Overlord" # Orc Overlord for siege too
 		
-		var boss_data = _create_enemy_data("Orc Overlord", "Orc Overlord")
-		boss_data.max_hp += (stage * 4)
+		var boss_data = _create_enemy_data(boss_class, boss_class)
+		boss_data.max_hp += (stage * 5)
 		boss_data.attack_damage += floor(stage / 2.0)
 		boss_data.restore_stats()
 		
-		var spawn_pos = Vector2i(grid_size.x - 3, grid_size.y / 2)
-		if not castle_spots.is_empty():
-			spawn_pos = castle_spots.pick_random()
-		_create_unit_from_data(spawn_pos, boss_data, true) # Force spawn inside
+		var boss_pos = Vector2i(grid_size.x - 2, grid_size.y / 2)
+		if current_scenario == "maze":
+			# Furthest point in maze
+			boss_pos = Vector2i(grid_size.x - 2, grid_size.y - 2)
+		elif current_scenario == "siege":
+			var castle_spots = []
+			for pos in grid_data:
+				if grid_data[pos] == Terrain.CASTLE: castle_spots.append(pos)
+			if not castle_spots.is_empty(): boss_pos = castle_spots.pick_random()
+			
+		_create_unit_from_data(boss_pos, boss_data, true)
+		enemy_count -= 1
 		
-		# Add elite guards inside the castle too
-		for i in range(4):
-			if not castle_spots.is_empty():
-				var guard_pos = castle_spots.pick_random()
-				_create_unit_from_data(guard_pos, _create_enemy_data("Orc Brute", "Elite Guard"), true)
-	else:
-		# Spawn Enemies on the RIGHT half - INCREASED HORDES
-		var count_factor = 1.8 if stage <= 5 else 1.4 
-		var enemy_count = 3 + floor(stage / count_factor)
-		for i in range(enemy_count):
-			var roll = randi() % 100
-			var e_class = "Goblin"
-			if roll < 20: e_class = "Goblin"
-			elif roll < 35: e_class = "Orc Brute"
-			elif roll < 50: e_class = "Orc Archer"
-			elif roll < 65: e_class = "Insurgent"
-			elif roll < 80: e_class = "Insurgent Archer"
-			elif roll < 92: e_class = "Shadow Assassin"
-			else: e_class = "Orc Ballista"
-			
-			var enemy_data = _create_enemy_data(e_class, e_class)
-			enemy_data.max_hp += floor(stage * 0.8)
-			enemy_data.attack_damage += floor(stage / 3.0)
-			enemy_data.restore_stats()
-			
-			_create_unit_from_data(Vector2i(grid_size.x - 2, randi_range(2, grid_size.y - 3)), enemy_data)
+	# Regular Enemies
+	var enemy_classes = weights.keys()
+	for i in range(enemy_count):
+		# Weighted Random Selection
+		var total_weight = 0.0
+		for w in weights.values(): total_weight += w
+		var roll = randf() * total_weight
+		var current_w = 0.0
+		var e_class = enemy_classes[0]
+		for c in enemy_classes:
+			current_w += weights[c]
+			if roll <= current_w:
+				e_class = c
+				break
+				
+		var enemy_data = _create_enemy_data(e_class, e_class)
+		enemy_data.max_hp += floor(stage * 0.8)
+		enemy_data.attack_damage += floor(stage / 3.0)
+		enemy_data.restore_stats()
+		
+		_create_unit_from_data(Vector2i(grid_size.x - 2, randi_range(2, grid_size.y - 3)), enemy_data)
 
 func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 	var data = UnitData.new()

@@ -38,11 +38,11 @@
 ## Iteration 11: Immersive Feedback & Tactical Scenarios (Current)
 *   **Goal:** Make the battlefield feel alive with personality-driven chatter and procedural diversity.
 *   **Tasks:**
-	*   **Battle Chatter:** Thematic dialogue for units (Frontline, Attack, Idle, Hard Hit) driven by `config/units.json`.
-	*   **Flavor Text:** Map Victory Chance to 10 tiers of randomized phrases (e.g., "Dark Red: Start praying").
-	*   **Dynamic Scenarios:** 11 distinct level types (Ambush, Horde, Cave Outbreak, Orc Maze).
-	*   **Orc Maze:** Procedural labyrinth generation with a "big and tough" Overlord boss.
-	*   **Level Intro UI:** Set the stage with fullscreen scenario intros.
+	*   [DONE] **Battle Chatter:** Thematic dialogue for units (Frontline, Attack, Idle, Hard Hit) driven by `config/units.json`.
+	*   [DONE] **Flavor Text:** Map Victory Chance to 10 tiers of randomized phrases (e.g., "Dark Red: Start praying").
+	*   [DONE] **Dynamic Scenarios:** 11 distinct level types (Ambush, Horde, Cave Outbreak, Orc Maze).
+	*   [DONE] **Orc Maze:** Procedural labyrinth generation with a "big and tough" Overlord boss.
+	*   [DONE] **Level Intro UI:** Set the stage with fullscreen scenario intros.
 
 ---
 
