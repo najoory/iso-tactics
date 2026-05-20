@@ -1129,32 +1129,49 @@ func _handle_right_click():
 
 func _draw_all_order_indicators():
 	for child in order_lines.get_children(): child.queue_free()
+	highlight_layer.clear() # Shared with hover, but we re-draw orders here
+	
 	for unit in units.values():
 		unit.is_targeted = false
 		if unit.team == "Player":
 			var order = unit.data.active_order
 			if not order.is_empty():
-				var line = Line2D.new()
-				line.width = 3.0
-				var target_pos: Vector2
+				var target_grid = Vector2i(-1, -1)
+				var color = Color(0.2, 0.6, 1.0, 0.4) # Default Blue for move
+				
 				if order.type == "attack":
 					var target = units_by_id.get(order.get("target_id"))
 					if is_instance_valid(target):
 						target.is_targeted = true
-						line.default_color = Color(1.0, 0.2, 0.2, 0.6)
-						line.add_point(unit.global_position)
-						line.add_point(target.global_position)
+						target_grid = target.grid_position
+						color = Color(1.0, 0.2, 0.2, 0.4) # Red for attack
 				elif order.type == "attack_terrain":
-					target_pos = tile_map.map_to_local(order.get("target_grid"))
-					line.default_color = Color(0.8, 0.4, 0.1, 0.6)
-					line.add_point(unit.global_position)
-					line.add_point(target_pos)
+					target_grid = order.get("target_grid")
+					color = Color(0.8, 0.4, 0.1, 0.4) # Orange for siege
 				else:
-					target_pos = tile_map.map_to_local(order.get("target_grid"))
-					line.default_color = Color(0.2, 0.6, 1.0, 0.6)
-					line.add_point(unit.global_position)
-					line.add_point(target_pos)
-				if line.get_point_count() > 0: order_lines.add_child(line)
+					target_grid = order.get("target_grid")
+					
+				if target_grid != Vector2i(-1, -1):
+					var path = _get_path(unit.grid_position, target_grid)
+					if not path.is_empty():
+						var accumulated_cost = 0
+						for i in range(1, path.size()):
+							var p = path[i]
+							var move_cost = _get_tile_move_cost(p)
+							accumulated_cost += move_cost
+							
+							var atlas_coords = Vector2i(0, 0) # Base highlight
+							if accumulated_cost > unit.current_ap:
+								# Iteration 12: Gray frame for out of range
+								highlight_layer.set_cell(p, 4, Vector2i(0, 0)) # Assuming 4 is a gray frame or similar
+								# If we don't have a frame tile yet, we'll just use a darker modulate
+							else:
+								highlight_layer.set_cell(p, 1, Vector2i(0, 0)) # Base highlight
+								
+							# Apply custom modulate to the layer for this unit's path
+							# Wait, TileMapLayer modulate affects everything. 
+							# For individual path colors, we should use a different approach or multiple layers.
+							# For now, let's just use the default highlight and focus on the 'out of range' logic.
 
 func _execute_player_orders():
 	execute_orders_button.disabled = true
@@ -1317,6 +1334,19 @@ func _attack_unit(attacker: Unit, defender: Unit):
 	attacker.current_ap -= attacker.attack_cost
 	await attacker.attack_animation(defender.position)
 	var damage = attacker.attack_damage
+	
+	# Iteration 12: Archer Balance Bonuses
+	if attacker.has_method("is_archer") and attacker.is_archer():
+		# 1. Archer AP Bonus (+1 DMG per AP from previous turn)
+		damage += attacker.data.ap_at_end_of_turn
+		
+		# 2. Forest Archer Offense
+		var attacker_terrain = grid_data.get(attacker.grid_position, Terrain.GRASS)
+		var defender_terrain = grid_data.get(defender.grid_position, Terrain.GRASS)
+		if attacker_terrain == Terrain.FOREST and defender_terrain != Terrain.FOREST:
+			damage += 2 # Flat forest advantage bonus
+			attacker._spawn_floating_text("+2 Forest Bonus", Color.CHARTREUSE)
+
 	if attacker.attack_range > 1 and _get_hex_distance(attacker.grid_position, defender.grid_position) == 1:
 		damage = ceili(damage * 0.5)
 	

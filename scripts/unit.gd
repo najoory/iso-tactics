@@ -178,7 +178,20 @@ func update_saved_defense():
 	if is_melee and data.active_order.is_empty():
 		def += 2
 		
+	# Iteration 12: Forest Archer Defense
+	var is_archer = unit_class.contains("Archer")
+	if is_archer:
+		var main = get_parent().get_parent() # Main script
+		if main and main.get("grid_data"):
+			# 1 is Terrain.FOREST
+			if main.grid_data.get(grid_position) == 1: # Enum value for FOREST
+				def += current_ap
+	
 	data.saved_defense = int(def)
+	data.ap_at_end_of_turn = current_ap
+
+func is_archer() -> bool:
+	return unit_class.contains("Archer")
 
 func take_damage(amount: int):
 	self.current_hp = max(0, current_hp - amount)
