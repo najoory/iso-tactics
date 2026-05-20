@@ -6,67 +6,63 @@
 
 ---
 
-## Iteration 1-11: Core Foundations & Immersive Scenarios
+## Iteration 1-13: Core, Immersive Feedback & Sound
 *   [DONE] Hexagonal Grid, Basic AI, Persistent Campaign.
-*   [DONE] Professional Art Upgrade (8-Directional Units).
-*   [DONE] Victory Statistics & Visual Graveyard.
-*   [DONE] Battlefield HUD (Stage, Turn Banners, Dynamic Victory Chance).
-*   [DONE] Battle Chatter (Personality-driven unit dialogue).
-*   [DONE] Dynamic Level Scenarios & Orc Maze (11 level types).
+*   [DONE] Professional Art Upgrade & Battle Chatter.
+*   [DONE] Dynamic Scenarios (Ambush, Horde, Maze, etc.).
+*   [DONE] Fog of War & Stealth Mechanics.
+*   [DONE] Sound Design Foundation (AudioManager singleton).
 
 ---
 
-## Iteration 12: Fog of War, Stealth & Tactical Polish
-*   **Goal:** Deepen tactical complexity with environment bonuses, stealth mechanics, and improved UI feedback.
-*   [DONE] **Balance Fixes:** Archer Forest/AP bonuses implemented.
-*   [DONE] **UI Pathing:** Hexagon-based path highlighting with range feedback.
-*   [DONE] **Stealth & Fog:** Dynamic vision system and enemy hiding in forests.
-*   [DONE] **Difficulty Balancing:** Smoothed enemy count and level scaling for early stages.
-*   [DONE] **UI Skinning:** Thematic intro and game over screens finalized.
-
----
-
-## Iteration 13: Sound Design
-*   **Goal:** Epic orchestral music and punchy SFX via AI MCP tools.
-*   **Tasks:**
-	*   **Music (Suno AI MCP):** Orchestral tactical themes and menu music.
-	*   **SFX (ElevenLabs/AudioGen):** Unit-specific impact and death sounds.
-	*   **AudioManager:** Centralized Godot singleton for mixing and BGM cross-fading.
-
----
-
-## Iteration 14: Cavalry & Coin Economy
-*   **Goal:** Add a new unit type and a persistent economic layer.
+## Iteration 14: Cavalry, Economy & Massive Battles (Current)
+*   **Goal:** Expand unit variety and scale the battlefield to epic proportions.
 *   **Cavalry Unit:**
-	*   **Bonus:** High AP (8-10) and "Charge" damage (bonus dmg based on distance moved).
-	*   **Vulnerability:** Cannot enter Forest/Mountain. Low defense when standing still.
-*   **Economic System:**
-	*   **Coins:** Earned by killing enemies (10g) and winning stages (50g).
-	*   **The Shop:** Between-battle menu to spend coins on extra recruits or specific training.
-	*   **Mercenaries:** Hire Assassins regardless of your primary faction.
+	*   **High Mobility:** 8-10 AP, ignore Z-sorting of friendly units.
+	*   **Charge Mechanic:** Damage bonus scales with distance moved in a straight line.
+	*   **Vulnerability:** Massive damage penalty in Forest/Mountains; weak to Ballistae.
+*   **Massive Battle Scaling:**
+	*   **Chess-like Starting Roster:** Standardize starting armies (e.g., 3 Knights, 2 Archers, 2 Cavalry, 1 Ballista).
+	*   **Balanced Spawning:** Refine AI counts to match the player's scaled-up roster.
+*   **Coin Economy:**
+	*   **Earning:** 10g per kill, 50g per victory.
+	*   **Shop Menu:** Spend coins between battles for extra reinforcements or permanent stat boosts.
 
 ---
 
-## Iteration 15: Faction Wars
-*   **Goal:** Choose your side and fight against shifting alliances.
-*   **Faction Selection:** Select Knights, Orcs, or Assassins at the start of a new game.
-*   **Mixing Logic:**
-	*   Orcs and Knights are arch-enemies (never on the same side).
-	*   Assassins can ally with either (mercenary logic).
-	*   Enemies can be mixed: e.g., an Orc Horde supported by Shadow Assassins.
+## Iteration 15: Advanced UI & Settings
+*   **Goal:** Provide user customization and better onboarding.
+*   **Settings Menu:**
+	*   **Logic:** Integrated with `config/game.json`.
+	*   **Options:** Toggle Fog of War, Toggle UI Help/Tips, Audio Volume sliders.
+	*   **Visuals:** Unique PixelLab-generated background (e.g., a technical blueprint or a military desk).
+*   **Controls Screen:**
+	*   Full-screen reference showing WASD, Mouse buttons, and hotkeys.
+	*   Thematic background (e.g., an old training manual or wall scroll).
 
 ---
 
-## Iteration 16: Narrative Campaigns
-*   **Goal:** Move beyond endless mode with character-driven stories.
-*   **Campaign Structure:** Start, Middle, and End-game objectives for each faction.
-*   **Lore Integration:** Unique intro/outro dialogues for key stages to tell the story of the chosen faction's struggle for dominance.
+## Iteration 16: Strategic Objectives & Factions
+*   **Goal:** Introduce mission variety beyond simple elimination.
+*   **New Objectives:**
+	*   **Regicide:** One unit is designated the "King" (High HP, low AP). Loss of King = Defeat.
+	*   **Capture the Flag:** Move a unit to a specific "Goal" hex and hold it for 1 turn.
+	*   **Rescue:** Reach a "Prisoner" unit in the enemy half and escort them back.
+*   **Faction Wars:**
+	*   Select Knights, Orcs, or Assassins at start.
+	*   Orcs and Knights are enemies; Assassins are neutral/mercenaries available to both.
 
 ---
 
-## Iteration 17: Quality Assurance & Shipment
+## Iteration 17: Narrative Campaigns
+*   **Goal:** Contextualize the battles with story.
+*   **Structure:** Each faction gets a 10-stage narrative arc with unique dialogue.
+*   **Lore:** Integrated into the Level Intro UI.
+
+---
+
+## Iteration 18: Quality Assurance & Shipment
 *   **Tasks:**
-	*   **Refactoring:** Decouple `main.gd` into modular managers.
-	*   **Test Coverage:** Increase unit test coverage to 85%+.
-	*   **Multi-Platform Export:** Presets for Linux, Windows, and Android.
-	*   **CI/CD:** Automated builds via GitHub Actions.
+	*   Decouple `main.gd` into modular managers.
+	*   Unit test coverage to 85%+.
+	*   Export presets for Linux, Windows, and Android.
