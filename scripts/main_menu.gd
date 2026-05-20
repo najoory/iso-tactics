@@ -83,10 +83,12 @@ func _setup_visuals():
 				btn.custom_minimum_size = Vector2(240, 60)
 
 func _on_new_game_pressed():
+	AudioManager.play_sound("click")
 	CampaignState.reset_campaign()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 func _on_continue_pressed():
+	AudioManager.play_sound("click")
 	if CampaignState.load_game():
 		if CampaignState.player_roster.is_empty():
 			print("Loaded empty roster, starting new game instead.")
@@ -94,6 +96,7 @@ func _on_continue_pressed():
 		get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 func _on_quit_pressed():
+	AudioManager.play_sound("click")
 	get_tree().quit()
 
 func _input(event):

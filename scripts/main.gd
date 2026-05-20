@@ -148,6 +148,7 @@ func _trigger_level_intro():
 
 func _on_intro_close_pressed():
 	intro_panel.visible = false
+	AudioManager.play_sound("click")
 	_update_fog()
 	_reset_units_ap("Player")
 	animate_turn_transition("PLAYER TURN")
@@ -575,6 +576,7 @@ func animate_turn_transition(text: String):
 	turn_banner.visible = false
 
 func _on_reward_selected(type: String):
+	AudioManager.play_sound("click")
 	if type == "knight": CampaignState.add_knight()
 	elif type == "archer": CampaignState.add_archer()
 	elif type == "ballista": CampaignState.add_ballista()
@@ -1524,11 +1526,13 @@ func _switch_turn():
 	if current_turn == Turn.PLAYER:
 		current_turn = Turn.ENEMY
 		_update_ui()
+		AudioManager.play_sound("turn_enemy")
 		await animate_turn_transition("ENEMY TURN")
 		_handle_enemy_turn()
 	else:
 		current_turn = Turn.PLAYER
 		_update_ui()
+		AudioManager.play_sound("turn_player")
 		await animate_turn_transition("PLAYER TURN")
 		_reset_units_ap("Player")
 	_draw_all_order_indicators()

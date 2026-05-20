@@ -197,6 +197,7 @@ func take_damage(amount: int):
 	self.current_hp = max(0, current_hp - amount)
 	_spawn_floating_text("-" + str(amount) + " HP", Color.RED)
 	_flash_red()
+	AudioManager.play_sound("hit")
 	
 	# Hard hit chatter check
 	var ratio = CampaignState.game_config.get("chatter", {}).get("hard_hit_threshold_ratio", 0.3)
@@ -233,12 +234,14 @@ func attack_animation(target_world_pos: Vector2):
 	try_shout("attack")
 
 	if attack_range > 1:
+		AudioManager.play_sound("shoot")
 		var projectile = projectile_scene.instantiate()
 		get_parent().add_child(projectile)
 		await projectile.launch(global_position, target_world_pos)
 	else:
 		var original_pos = position
 		var lunge_pos = position + (target_world_pos - position) * 0.4
+		AudioManager.play_sound("swing")
 		var tween = create_tween()
 		tween.tween_property(self, "position", lunge_pos, 0.1).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 		var slash = slash_scene.instantiate()
@@ -254,6 +257,7 @@ func _die():
 	print(unit_name, " has died.")
 	is_dead = true
 	died.emit(self)
+	AudioManager.play_sound("death")
 	
 	# Load corpse sprite dynamically
 	var corpse_path = "res://assets/units/" + data.sprite_folder + "/corpse.png"
