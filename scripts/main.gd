@@ -957,9 +957,9 @@ func _spawn_units():
 	var config = scenario_config.get(current_scenario, {})
 	var weights = config.get("spawn_weights", {"Goblin": 1.0})
 	
-	# Scaling enemy count
-	var count_factor = 1.8 if stage <= 5 else 1.4
-	var enemy_count = 3 + floor(stage / count_factor)
+	# REFINED SCALING: Smoother enemy count increase
+	var enemy_count = 2 + floor(stage / 2.0)
+	if stage >= 5: enemy_count = 3 + floor(stage / 1.5)
 	
 	# Boss Spawning
 	if current_scenario in ["siege", "maze", "hunt"]:
@@ -1013,9 +1013,20 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 	data.unit_id = CampaignState._get_next_id()
 	
 	var stage = CampaignState.current_stage
-	# Level Scaling: Stage 1-5 -> 1-5, Stage 6-10 -> 5-10, etc.
+	# REFINED LEVEL SCALING:
+	# Stage 1: Always Level 1
+	# Stage 2-5: Level = base_lvl + rand(0..1)
+	# Stage 5+: Gradual increase
 	var base_lvl = max(1, floor((stage - 1) / 5.0) * 5)
-	data.level = base_lvl + (randi() % 5)
+	if stage <= 1:
+		data.level = 1
+	elif stage < 5:
+		data.level = max(1, stage - 1) + (randi() % 2)
+	else:
+		data.level = base_lvl + (randi() % 4)
+		
+	# Hard cap at stage + 2 to prevent extreme outliers
+	data.level = min(data.level, stage + 2)
 	
 	var stats = CampaignState.get_base_stats("Enemy", u_class)
 	if not stats.is_empty():
