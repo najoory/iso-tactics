@@ -29,6 +29,10 @@
 	*   Implement Fog of War (Hexes hidden until within unit vision range).
 	*   Add "Scout" class/ability to Archers (increased vision).
 	*   Add "Hidden" state for enemies in Forests.
+*   **Difficulty Balancing:**
+	*   Refine enemy spawn counts and level scaling for a smoother difficulty curve.
+	*   Ensure Stages 1-5 are bearable for a starting roster.
+	*   Introduce "Elite" variants and higher enemy counts more gradually.
 
 ---
 
