@@ -287,41 +287,58 @@ func _setup_dynamic_ui():
 
 	# Level Intro Panel Setup
 	intro_panel = ColorRect.new()
-	intro_panel.color = Color(0, 0, 0, 0.85)
+	intro_panel.color = Color(0, 0, 0, 0.7) # Slightly lighter mask
 	intro_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	intro_panel.visible = false
 	$CanvasLayer.add_child(intro_panel)
+
+	var intro_board = TextureRect.new()
+	var board_tex = load("res://assets/ui/stone_board.png")
+	if board_tex:
+		intro_board.texture = board_tex
+		intro_board.set_anchors_preset(Control.PRESET_CENTER)
+		intro_board.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		intro_board.grow_vertical = Control.GROW_DIRECTION_BOTH
+		intro_board.custom_minimum_size = Vector2(700, 500)
+		intro_board.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		intro_board.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		intro_panel.add_child(intro_board)
 
 	var intro_vbox = VBoxContainer.new()
 	intro_vbox.set_anchors_preset(Control.PRESET_CENTER)
 	intro_vbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	intro_vbox.grow_vertical = Control.GROW_DIRECTION_BOTH
 	intro_vbox.custom_minimum_size = Vector2(600, 400)
-	intro_panel.add_child(intro_vbox)
+	if intro_board:
+		intro_board.add_child(intro_vbox)
+	else:
+		intro_panel.add_child(intro_vbox)
 	
 	intro_title = Label.new()
 	intro_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	intro_title.add_theme_font_size_override("font_size", 48)
+	intro_title.add_theme_font_size_override("font_size", 54)
 	intro_title.add_theme_color_override("font_shadow_color", Color.BLACK)
 	intro_title.add_theme_constant_override("shadow_offset_x", 4)
 	intro_title.add_theme_constant_override("shadow_offset_y", 4)
+	intro_title.add_theme_color_override("font_outline_color", Color(0.2, 0.1, 0))
+	intro_title.add_theme_constant_override("outline_size", 12)
 	intro_vbox.add_child(intro_title)
 	
 	var spacer = Control.new()
-	spacer.custom_minimum_size = Vector2(0, 40)
+	spacer.custom_minimum_size = Vector2(0, 30)
 	intro_vbox.add_child(spacer)
 	
 	intro_phrase = Label.new()
 	intro_phrase.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	intro_phrase.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	intro_phrase.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	intro_phrase.add_theme_font_size_override("font_size", 24)
-	intro_phrase.add_theme_color_override("font_color", Color(0.9, 0.9, 0.8))
-	intro_phrase.custom_minimum_size = Vector2(550, 100)
+	intro_phrase.add_theme_font_size_override("font_size", 20)
+	intro_phrase.add_theme_color_override("font_color", Color(0.1, 0.1, 0.05)) # Dark ink on parchment
+	intro_phrase.custom_minimum_size = Vector2(500, 120)
 	intro_vbox.add_child(intro_phrase)
 	
 	var spacer2 = Control.new()
-	spacer2.custom_minimum_size = Vector2(0, 60)
+	spacer2.custom_minimum_size = Vector2(0, 40)
 	intro_vbox.add_child(spacer2)
 	
 	var start_btn = Button.new()
