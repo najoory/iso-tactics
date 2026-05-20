@@ -18,6 +18,10 @@ var current_ap: int = 5
 @export var sprite_folder: String = "knight"
 @export var current_exp: int = 0
 
+# Iteration 12: Stealth & Fog
+@export var vision_range: int = 3
+var is_hidden: bool = false
+
 var ap_at_end_of_turn: int = 0
 var saved_defense: int = 0
 

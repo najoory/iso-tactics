@@ -79,6 +79,10 @@ func _create_player_unit(u_class: String, name: String) -> UnitData:
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
 		data.chatter_data = stats.get("chatter", {})
+		
+		# Iteration 12: Vision Logic
+		data.vision_range = 3
+		if u_class == "Archer": data.vision_range = 5 # Scout bonus
 	
 	data.restore_stats()
 	return data

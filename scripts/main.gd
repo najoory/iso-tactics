@@ -31,6 +31,9 @@ var vignette_overlay: ColorRect
 var scenario_config: Dictionary = {}
 var current_scenario: String = "open_field"
 
+var fog_layer: TileMapLayer
+var revealed_hexes: Dictionary = {} # grid_pos -> bool
+
 var unit_scene = preload("res://scenes/unit.tscn")
 var units: Dictionary = {} # grid_pos -> Unit
 var units_by_id: Dictionary = {} # persistent_id -> Unit
@@ -99,6 +102,7 @@ void fragment() {
 	_spawn_units()
 	
 	_setup_dynamic_ui()
+	_setup_fog()
 	
 	execute_orders_button.pressed.connect(_execute_player_orders)
 	restart_button.pressed.connect(_restart_game)
@@ -144,6 +148,7 @@ func _trigger_level_intro():
 
 func _on_intro_close_pressed():
 	intro_panel.visible = false
+	_update_fog()
 	_reset_units_ap("Player")
 	animate_turn_transition("PLAYER TURN")
 
@@ -376,6 +381,59 @@ func _on_retreat_confirmed():
 	CampaignState.retreat()
 	get_tree().reload_current_scene()
 
+func _setup_fog():
+	if not has_node("FogLayer"):
+		var fog = TileMapLayer.new()
+		fog.name = "FogLayer"
+		fog.tile_set = tile_map.tile_set
+		fog.z_index = 10
+		add_child(fog)
+		fog_layer = fog
+	
+	fog_layer.clear()
+	revealed_hexes.clear()
+	
+	# Fill map with "fog" (Black modulated grass)
+	fog_layer.modulate = Color(0, 0, 0, 0.8)
+	var margin_x = 40
+	var margin_y = 20
+	for x in range(-margin_x, grid_size.x + margin_x):
+		for y in range(-margin_y, grid_size.y + margin_y):
+			fog_layer.set_cell(Vector2i(x, y), 0, Vector2i(0, 0))
+
+func _update_fog():
+	# 1. Collect all hexes currently visible to player
+	var currently_visible = {}
+	for unit in units.values():
+		if unit.team == "Player" and not unit.is_dead:
+			var v_range = unit.data.vision_range
+			for x in range(-v_range, v_range + 1):
+				for y in range(-v_range, v_range + 1):
+					var p = unit.grid_position + Vector2i(x, y)
+					if _get_hex_distance(unit.grid_position, p) <= v_range:
+						currently_visible[p] = true
+						revealed_hexes[p] = true
+						if fog_layer: fog_layer.erase_cell(p)
+
+	# 2. Update Enemy Visibility & Stealth
+	for unit in units.values():
+		if unit.team == "Enemy":
+			var is_visible = currently_visible.has(unit.grid_position)
+			
+			# Stealth Check: Hidden in Forests
+			if is_visible and grid_data.get(unit.grid_position) == Terrain.FOREST:
+				var player_adjacent = false
+				for p_unit in units.values():
+					if p_unit.team == "Player" and not p_unit.is_dead:
+						if _get_hex_distance(p_unit.grid_position, unit.grid_position) <= 1:
+							player_adjacent = true
+							break
+				if not player_adjacent:
+					is_visible = false
+			
+			unit.visible = is_visible
+			unit.data.is_hidden = not is_visible
+
 func _load_scenarios():
 	var path = "res://config/scenarios.json"
 	if FileAccess.file_exists(path):
@@ -534,7 +592,12 @@ func _update_tooltip_and_tips():
 	var screen_mouse_pos = get_viewport().get_mouse_position()
 	
 	var unit_at_pos = units.get(grid_pos)
+	var is_fogged = not revealed_hexes.has(grid_pos)
 	
+	if is_fogged:
+		tooltip.visible = false
+		return
+
 	if unit_at_pos and unit_at_pos.team == "Player":
 		if unit_at_pos != last_hovered_unit and not selected_unit:
 			_show_unit_total_range(unit_at_pos)
@@ -965,6 +1028,11 @@ func _create_enemy_data(u_class: String, u_name: String) -> UnitData:
 		data.attack_range = stats.attack_range
 		data.sprite_folder = stats.get("sprite_folder", "knight")
 		data.chatter_data = stats.get("chatter", {})
+		
+		# Iteration 12: Vision Logic
+		data.vision_range = 3
+		if u_class.contains("Archer"): data.vision_range = 4
+		if u_class.contains("Shadow Assassin"): data.vision_range = 4
 
 		if u_class.contains("Archer"): data.unit_class = "Archer"
 
@@ -1067,6 +1135,7 @@ func _handle_click():
 	var local_mouse = tile_map.to_local(mouse_pos)
 	var grid_pos = tile_map.local_to_map(local_mouse)
 	if not astar.has_point(_get_id(grid_pos)): return
+	if not revealed_hexes.has(grid_pos): return # Fog check
 	if selected_unit and is_instance_valid(selected_unit) and selected_unit.is_moving: return
 	if current_turn == Turn.ENEMY: return
 
@@ -1116,6 +1185,7 @@ func _handle_right_click():
 	var local_mouse = tile_map.to_local(mouse_pos)
 	var grid_pos = tile_map.local_to_map(local_mouse)
 	if not astar.has_point(_get_id(grid_pos)): return
+	if not revealed_hexes.has(grid_pos): return # Fog check
 	if not selected_unit or not is_instance_valid(selected_unit): return
 	if units.has(grid_pos):
 		var target = units[grid_pos]
@@ -1422,6 +1492,7 @@ func _destroy_terrain(grid_pos: Vector2i):
 
 func _switch_turn():
 	_deselect_unit()
+	_update_fog()
 	if current_turn == Turn.PLAYER:
 		current_turn = Turn.ENEMY
 		_update_ui()
@@ -1616,6 +1687,7 @@ func _move_selected_unit(target_grid_pos: Vector2i):
 	await unit.move_along_path_raw(world_path, grid_path)
 	units[unit.grid_position] = unit
 	astar.set_point_disabled(_get_id(unit.grid_position), true)
+	_update_fog()
 	if selected_unit == unit:
 		_show_unit_total_range(unit)
 	_draw_all_order_indicators()
