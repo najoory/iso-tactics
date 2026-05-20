@@ -1579,8 +1579,11 @@ func _show_unit_total_range(unit: Unit):
 func _get_path_cost(path: Array[Vector2i]) -> int:
 	if path.size() <= 1: return 0
 	var cost = 0
-	for i in range(1, path.size()): cost += int(astar.get_point_weight_scale(_get_id(path[i])))
+	for i in range(1, path.size()): cost += _get_tile_move_cost(path[i])
 	return cost
+
+func _get_tile_move_cost(pos: Vector2i) -> int:
+	return int(astar.get_point_weight_scale(_get_id(pos)))
 
 func _get_path(start: Vector2i, end: Vector2i) -> Array[Vector2i]:
 	var start_id = _get_id(start)
